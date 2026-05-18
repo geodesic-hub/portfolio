@@ -1,0 +1,183 @@
+/* ── Startup / flicker ─────────────────────────────────────── */
+@keyframes crt-startup {
+  0%   { opacity: 0; transform: scaleY(0.04); filter: brightness(4) blur(2px); }
+  18%  { opacity: 1; transform: scaleY(1);    filter: brightness(2) blur(0px); }
+  20%  { filter: brightness(0.6); }
+  22%  { filter: brightness(2); }
+  60%  { filter: brightness(1.2); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes led-pulse {
+  0%, 80%, 100% { opacity: 1; box-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41; }
+  90%            { opacity: 0.25; box-shadow: none; }
+}
+
+@keyframes hud-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.hud-cursor { animation: hud-blink 0.7s infinite; }
+
+/* ── Bezel ─────────────────────────────────────────────────── */
+.crt-bezel {
+  width: 100%;
+  background: #111;
+  border: 2px solid #222;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  font-family: "Courier New", Courier, monospace;
+  box-shadow:
+    -3px 0 0 #0a0a0a,
+    3px 0 0 #0a0a0a,
+    0 -3px 0 #0a0a0a,
+    inset 0 1px 0 rgba(255,255,255,0.04),
+    0 -12px 40px rgba(0, 255, 65, 0.06);
+}
+
+/* ── Title bar ─────────────────────────────────────────────── */
+.crt-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: #0c0c0c;
+  border-bottom: 1px solid #1a1a1a;
+  border-radius: 6px 6px 0 0;
+  user-select: none;
+}
+
+.crt-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00ff41;
+  box-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41;
+  animation: led-pulse 3s infinite;
+  flex-shrink: 0;
+}
+
+.crt-model {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: #333;
+  flex: 1;
+  text-transform: uppercase;
+}
+
+.crt-collapse-btn {
+  background: none;
+  border: none;
+  color: #2a2a2a;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+.crt-collapse-btn:hover { color: #00ff41; }
+
+/* ── Screen ────────────────────────────────────────────────── */
+.crt-screen {
+  background: #010901;
+  margin: 4px;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #0a0a0a;
+  transform-origin: center top;
+  animation: crt-startup 0.55s ease-out;
+}
+
+/* scanlines */
+.crt-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.13) 2px,
+    rgba(0, 0, 0, 0.13) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* vignette */
+.crt-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.65) 100%);
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* ── Content area ──────────────────────────────────────────── */
+.crt-content {
+  padding: 16px 16px 12px;
+  min-height: 110px;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.7);
+  position: relative;
+  z-index: 2;
+}
+
+.crt-idle {
+  font-size: 11px;
+  letter-spacing: 3px;
+  opacity: 0.35;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+.crt-footer {
+  padding: 10px 16px 12px;
+  border-top: 1px solid #0e180e;
+  display: flex;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+}
+
+.crt-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.4);
+  color: #00ff41;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  padding: 6px 16px;
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(0,255,65,0.6);
+  box-shadow: 0 0 8px rgba(0,255,65,0.08), inset 0 0 8px rgba(0,255,65,0.03);
+  transition: background 0.1s, box-shadow 0.1s;
+}
+.crt-btn:hover {
+  background: rgba(0, 255, 65, 0.08);
+  box-shadow: 0 0 18px rgba(0,255,65,0.25), inset 0 0 12px rgba(0,255,65,0.07);
+}
+
+/* ── Collapsed tab ─────────────────────────────────────────── */
+.crt-tab {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 10px;
+  letter-spacing: 4px;
+  background: #0c0c0c;
+  border: 1px solid #222;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  color: #00ff41;
+  text-shadow: 0 0 6px rgba(0,255,65,0.5);
+  box-shadow: 0 -4px 16px rgba(0,255,65,0.05);
+  padding: 8px 40px;
+  cursor: pointer;
+  transition: background 0.15s;
+  width: 100%;
+}
+.crt-tab:hover {
+  background: #111;
+  box-shadow: 0 -4px 20px rgba(0,255,65,0.12);
+}
