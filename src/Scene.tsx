@@ -198,6 +198,19 @@ export default function Scene() {
 
       <ComputerHUD visible={hudVisible} content={hudContent} />
 
+      <div style={{
+        position: 'fixed', top: 20, left: 20, zIndex: 9999,
+        fontFamily: '"Segoe UI", system-ui, sans-serif',
+        fontSize: 12,
+        color: '#ff6b35',
+        textShadow: '0 0 6px rgba(255,107,53,0.7)',
+        border: '1px solid rgba(255,107,53,0.35)',
+        padding: '6px 12px',
+        pointerEvents: 'none',
+      }}>
+        ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!.
+      </div>
+
       {hudVisible && (
         <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, display: 'flex', alignItems: 'center', gap: 12 }}>
           <button
