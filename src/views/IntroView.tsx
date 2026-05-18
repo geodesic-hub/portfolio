@@ -30,7 +30,7 @@ export default function IntroView({ onDone }: { onDone: () => void }) {
       />
 
       <div style={{ flex: 1, fontFamily: '"Segoe UI", system-ui, sans-serif', fontSize: 13, lineHeight: 1.75, color: '#00ff41', textShadow: '0 0 6px rgba(0,255,65,0.55)' }}>
-        {SCRIPT.map((line, i) => {
+        {SCRIPT.map((_, i) => {
           if (i > activeIdx && !displayed[i]) return null
           const isActive = activeIdx === i
           return (

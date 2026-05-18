@@ -1,7 +1,6 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { EffectComposer, Glitch, ChromaticAberration } from '@react-three/postprocessing'
-import { GlitchMode, NoiseEffect } from 'postprocessing'
+import { EffectComposer, ChromaticAberration } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Room from './Room'
