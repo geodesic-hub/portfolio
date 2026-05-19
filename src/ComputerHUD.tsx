@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import './ComputerHUD.css'
 
@@ -9,10 +9,22 @@ interface HUDProps {
 
 export default function ComputerHUD({ visible, content }: HUDProps) {
   const [expanded, setExpanded] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (content) setExpanded(true)
   }, [content])
+
+  useEffect(() => {
+    if (!expanded) return
+    const onMouseDown = (e: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        setExpanded(false)
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [expanded])
 
   if (!visible) return null
 
@@ -23,6 +35,7 @@ export default function ComputerHUD({ visible, content }: HUDProps) {
         {expanded && (
           <motion.div
             key="panel"
+            ref={panelRef}
             className="crt-bezel"
             style={{ pointerEvents: 'auto', width: '100%' }}
             initial={{ y: '100%' }}
