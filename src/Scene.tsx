@@ -208,7 +208,7 @@ export default function Scene() {
         padding: '6px 12px',
         pointerEvents: 'none',
       }}>
-        ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!.
+        ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!
       </div>
 
       {hudVisible && (
