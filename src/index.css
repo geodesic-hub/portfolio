@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --font-mono: "Courier New", Courier, monospace;
+  --font-body: "Segoe UI", system-ui, sans-serif;
+  --color-green:        #00ff41;
+  --color-green-dim:    rgba(0, 255, 65, 0.6);
+  --color-green-faint:  rgba(0, 255, 65, 0.15);
+  --color-green-border: rgba(0, 255, 65, 0.35);
+  --color-bg:           #02040f;
+}
+
 html, body, #root {
   height: 100%;
   overflow: hidden;
@@ -10,3 +20,22 @@ html, body, #root {
 }
 
 * { box-sizing: border-box; }
+
+.crt-btn {
+  background: none;
+  border: 1px solid rgba(0, 255, 65, 0.35);
+  color: #00ff41;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(0, 255, 65, 0.6);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.1);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.crt-btn:hover {
+  border-color: rgba(0, 255, 65, 0.9);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.35);
+}

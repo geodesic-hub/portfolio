@@ -33,18 +33,6 @@ const FILENAMES = [
 
 const SKETCHES = FILENAMES.map(f => `/sketches/${encodeURIComponent(f)}`)
 
-const btnStyle: React.CSSProperties = {
-  background: 'none',
-  border: '1px solid rgba(0,255,65,0.35)',
-  color: '#00ff41',
-  fontFamily: '"Courier New", monospace',
-  fontSize: 14,
-  lineHeight: 1,
-  padding: '3px 8px',
-  cursor: 'pointer',
-  textShadow: '0 0 6px rgba(0,255,65,0.6)',
-}
-
 export default function SketchView() {
   const [idx, setIdx]           = useState(0)
   const [lightbox, setLightbox] = useState(false)
@@ -65,11 +53,11 @@ export default function SketchView() {
       <div style={{ fontFamily: '"Courier New", monospace', color: '#00ff41', textShadow: '0 0 6px rgba(0,255,65,0.5)' }}>
 
         <div style={{ fontSize: 9, letterSpacing: 5, opacity: 0.5, marginBottom: 10 }}>
-          SKETCH ARCHIVE — FILE {idx + 1} OF {SKETCHES.length}
+          SKETCH ARCHIVE - FILE {idx + 1} OF {SKETCHES.length}
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button style={btnStyle} disabled={idx === 0}                    onClick={() => setIdx(i => i - 1)}>◀</button>
+          <button className="crt-btn" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>◀</button>
 
           <div
             onClick={() => setLightbox(true)}
@@ -83,7 +71,7 @@ export default function SketchView() {
             />
           </div>
 
-          <button style={btnStyle} disabled={idx === SKETCHES.length - 1} onClick={() => setIdx(i => i + 1)}>▶</button>
+          <button className="crt-btn" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === SKETCHES.length - 1} onClick={() => setIdx(i => i + 1)}>▶</button>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
@@ -104,15 +92,17 @@ export default function SketchView() {
           }}
         >
           <button
+            className="crt-btn"
             onClick={e => { e.stopPropagation(); setLightbox(false) }}
-            style={{ ...btnStyle, position: 'absolute', top: 20, right: 24, fontSize: 18, padding: '4px 12px' }}
+            style={{ position: 'absolute', top: 20, right: 24, fontSize: 18, padding: '4px 12px' }}
           >
             ×
           </button>
 
           <button
+            className="crt-btn"
             onClick={e => { e.stopPropagation(); setIdx(i => Math.max(i - 1, 0)) }}
-            style={{ ...btnStyle, position: 'absolute', left: 24, fontSize: 22, padding: '8px 14px', opacity: idx === 0 ? 0.2 : 1 }}
+            style={{ position: 'absolute', left: 24, fontSize: 22, padding: '8px 14px', opacity: idx === 0 ? 0.2 : 1 }}
             disabled={idx === 0}
           >
             ◀
@@ -127,15 +117,16 @@ export default function SketchView() {
           />
 
           <button
+            className="crt-btn"
             onClick={e => { e.stopPropagation(); setIdx(i => Math.min(i + 1, SKETCHES.length - 1)) }}
-            style={{ ...btnStyle, position: 'absolute', right: 24, fontSize: 22, padding: '8px 14px', opacity: idx === SKETCHES.length - 1 ? 0.2 : 1 }}
+            style={{ position: 'absolute', right: 24, fontSize: 22, padding: '8px 14px', opacity: idx === SKETCHES.length - 1 ? 0.2 : 1 }}
             disabled={idx === SKETCHES.length - 1}
           >
             ▶
           </button>
 
           <div style={{ position: 'absolute', bottom: 20, fontFamily: '"Courier New", monospace', fontSize: 10, letterSpacing: 4, color: '#00ff41', opacity: 0.4 }}>
-            {idx + 1} / {SKETCHES.length} — ESC TO CLOSE
+            {idx + 1} / {SKETCHES.length} - ESC TO CLOSE
           </div>
         </div>,
         document.body

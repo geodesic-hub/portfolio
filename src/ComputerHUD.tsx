@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import './ComputerHUD.css'
+import { Minus, Plus } from 'lucide-react'
 
 interface HUDProps {
   visible: boolean
@@ -29,43 +30,41 @@ export default function ComputerHUD({ visible, content }: HUDProps) {
   if (!visible) return null
 
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: 480, pointerEvents: 'none' }}>
+    <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, width: '100%', maxWidth: 480, pointerEvents: 'none' }}>
 
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            key="panel"
-            ref={panelRef}
-            className="crt-bezel"
-            style={{ pointerEvents: 'auto', width: '100%' }}
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 36 }}
-          >
-            {/* Title bar */}
-            <div className="crt-titlebar">
-              <span className="crt-led" />
-              <span className="crt-model">Terminal</span>
-              <button className="crt-collapse-btn" onClick={() => setExpanded(false)}>─</button>
-            </div>
+      <div ref={panelRef} className="crt-bezel" style={{ pointerEvents: 'auto', width: '100%' }}>
 
-            {/* Screen */}
-            <div className="crt-screen">
-              <div className="crt-content">
-                {content ?? <div className="crt-idle">AWAITING INPUT, PLEASE CLICK ON OBJECTS TO RECIEVE DATA<span className="hud-cursor">▌</span></div>}
+        <div className="crt-titlebar">
+          <span className="crt-led" />
+          <span className="crt-model">Terminal</span>
+          <button className="crt-collapse-btn" onClick={() => setExpanded(e => !e)}>
+            {expanded ? <Minus size={20} /> : <Plus size={20} />}
+          </button>
+        </div>
+
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              key="screen"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 36 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div className="crt-screen">
+                <div className="crt-content">
+                  {content
+                    ? <><div className="crt-transmission">&gt; INCOMING TRANSMISSION...</div>{content}</>
+                    : <div className="crt-idle">AWAITING INPUT, PLEASE CLICK ON OBJECTS TO RECIEVE DATA<span className="hud-cursor">▌</span></div>
+                  }
+                </div>
               </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {!expanded && (
-        <button className="crt-tab" style={{ pointerEvents: 'auto' }} onClick={() => setExpanded(true)}>
-          ▶ TERMINAL
-        </button>
-      )}
+      </div>
 
     </div>
   )

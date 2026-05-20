@@ -16,9 +16,8 @@ export function useTypewriter(lines: TypewriterLine[]) {
   const [done, setDone] = useState(false)
 
   useEffect(() => {
-    let cancelled = false
-
-    ;(async () => {
+    let cancelled = false; 
+    (async () => {
       for (let i = 0; i < lines.length; i++) {
         const { text, pauseBefore = 400, speed = 35 } = lines[i]
 

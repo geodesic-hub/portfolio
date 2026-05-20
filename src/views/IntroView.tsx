@@ -3,11 +3,9 @@ import { useTypewriter } from '../hooks/useTypewriter'
 const SCRIPT = [
   { text: 'Hello there, visitor.',                                                      pauseBefore: 0,   speed: 40 },
   { text: 'You must be here to visit Harsh.',                                           pauseBefore: 700, speed: 35 },
-  { text: 'Sorry — he got lost in another dimension and left me to guide visitors.',    pauseBefore: 800, speed: 30 },
-  { text: 'He has also left clues for communication,',                                 pauseBefore: 700, speed: 30 },
-  { text: 'in case you are trying to reach him.',                                       pauseBefore: 200, speed: 30 },
-  { text: 'Since you are in a higher dimension than me,',                               pauseBefore: 800, speed: 30 },
-  { text: 'just click on things — the information will be transmitted to you.',         pauseBefore: 200, speed: 28 },
+  { text: 'Sorry, he got lost in another dimension and left me to guide visitors.',    pauseBefore: 800, speed: 30 },
+  { text: 'He has also left clues for communication, in case you are trying to reach him.', pauseBefore: 200, speed: 30 },
+  { text: 'Since you are in a higher dimension than me, please click on things - the information will be transmitted to you.', pauseBefore: 200, speed: 28 },
 ]
 
 export default function IntroView({ onDone }: { onDone: () => void }) {
@@ -43,31 +41,9 @@ export default function IntroView({ onDone }: { onDone: () => void }) {
 
         {done && (
           <button
+            className="crt-btn"
             onClick={onDone}
-            style={{
-              marginTop: 10,
-              display: 'block',
-              marginLeft: 'auto',
-              background: 'none',
-              border: '1px solid rgba(0,255,65,0.4)',
-              color: '#00ff41',
-              fontFamily: '"Courier New", monospace',
-              fontSize: 9,
-              letterSpacing: 3,
-              padding: '4px 10px',
-              cursor: 'pointer',
-              textShadow: '0 0 6px rgba(0,255,65,0.6)',
-              boxShadow: '0 0 8px rgba(0,255,65,0.15)',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
-            }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,255,65,0.9)'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 12px rgba(0,255,65,0.35)'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,255,65,0.4)'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 8px rgba(0,255,65,0.15)'
-            }}
+            style={{ marginTop: 10, display: 'block', marginLeft: 'auto' }}
           >
             [ UNDERSTOOD ]
           </button>

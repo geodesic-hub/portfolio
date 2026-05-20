@@ -13,6 +13,7 @@ import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import AboutView from './views/AboutView'
 import { LightbulbOff, Lightbulb } from 'lucide-react'
+import './Scene.css'
 
 const CAM_START: [number, number, number] = [500, 500, 500]
 const CAM_START_VEC = new THREE.Vector3(...CAM_START)
@@ -175,7 +176,7 @@ export default function Scene() {
   }, [hudView])
 
   return (
-    <div style={{ width: '100%', height: '100%' }}>
+    <div className="scene-root">
       <ThreeView
         lightsOn={lightsOn}
         sceneReady={cameraStarted}
@@ -198,51 +199,18 @@ export default function Scene() {
 
       <ComputerHUD visible={hudVisible} content={hudContent} />
 
-      <div style={{
-        position: 'fixed', top: 20, left: 20, zIndex: 9999,
-        fontFamily: '"Segoe UI", system-ui, sans-serif',
-        fontSize: 12,
-        color: '#ff6b35',
-        textShadow: '0 0 6px rgba(255,107,53,0.7)',
-        border: '1px solid rgba(255,107,53,0.35)',
-        padding: '6px 12px',
-        pointerEvents: 'none',
-      }}>
+      <div className="scene-wip-badge">
         ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!
       </div>
 
       {hudVisible && (
-        <div style={{ position: 'fixed', top: 24, right: 24, zIndex: 9999, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button
-            onClick={() => setHudView(v => v === 'about' ? null : 'about')}
-            style={{
-              background: 'none',
-              border: '1px solid rgba(0,255,65,0.35)',
-              cursor: 'pointer',
-              color: '#00ff41',
-              fontFamily: '"Courier New", monospace',
-              fontSize: 10,
-              letterSpacing: 3,
-              padding: '5px 10px',
-              textShadow: '0 0 6px rgba(0,255,65,0.6)',
-              transition: 'border-color 0.2s, box-shadow 0.2s',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,255,65,0.9)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 10px rgba(0,255,65,0.25)' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(0,255,65,0.35)'; (e.currentTarget as HTMLButtonElement).style.boxShadow = 'none' }}
-          >
+        <div className="scene-controls">
+          <button className="crt-btn" onClick={() => setHudView(v => v === 'about' ? null : 'about')}>
             ABOUT
           </button>
           <button
+            className={`scene-light-btn ${lightsOn ? 'scene-light-btn-on' : 'scene-light-btn-off'}`}
             onClick={() => setLightsOn(p => !p)}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: lightsOn ? '#00ff41' : '#ff6b35',
-              filter: lightsOn
-                ? 'drop-shadow(0 0 6px #00ff41)'
-                : 'drop-shadow(0 0 6px #ff6b35)',
-              transition: 'color 0.3s, filter 0.3s',
-              padding: 4,
-            }}
           >
             {lightsOn ? <LightbulbOff size={32} /> : <Lightbulb size={32} />}
           </button>

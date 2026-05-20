@@ -69,14 +69,13 @@
 .crt-collapse-btn {
   background: none;
   border: none;
-  color: #2a2a2a;
+  color: var(--color-green);
   cursor: pointer;
-  font-size: 16px;
   line-height: 1;
   padding: 0 2px;
-  transition: color 0.15s;
+  transition: opacity 0.15s;
 }
-.crt-collapse-btn:hover { color: #00ff41; }
+.crt-collapse-btn:hover { opacity: 0.7; }
 
 /* ── Screen ────────────────────────────────────────────────── */
 .crt-screen {
@@ -132,6 +131,13 @@
   opacity: 0.35;
 }
 
+.crt-transmission {
+  font-size: 9px;
+  letter-spacing: 3px;
+  opacity: 0.6;
+  margin-bottom: 12px;
+}
+
 /* ── Footer ────────────────────────────────────────────────── */
 .crt-footer {
   padding: 10px 16px 12px;
@@ -160,24 +166,3 @@
   box-shadow: 0 0 18px rgba(0,255,65,0.25), inset 0 0 12px rgba(0,255,65,0.07);
 }
 
-/* ── Collapsed tab ─────────────────────────────────────────── */
-.crt-tab {
-  font-family: "Courier New", Courier, monospace;
-  font-size: 10px;
-  letter-spacing: 4px;
-  background: #0c0c0c;
-  border: 1px solid #222;
-  border-bottom: none;
-  border-radius: 6px 6px 0 0;
-  color: #00ff41;
-  text-shadow: 0 0 6px rgba(0,255,65,0.5);
-  box-shadow: 0 -4px 16px rgba(0,255,65,0.05);
-  padding: 8px 40px;
-  cursor: pointer;
-  transition: background 0.15s;
-  width: 100%;
-}
-.crt-tab:hover {
-  background: #111;
-  box-shadow: 0 -4px 20px rgba(0,255,65,0.12);
-}
