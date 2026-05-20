@@ -34,10 +34,10 @@ export default function ComputerHUD({ visible, content }: HUDProps) {
 
       <div ref={panelRef} className="crt-bezel" style={{ pointerEvents: 'auto', width: '100%' }}>
 
-        <div className="crt-titlebar">
+        <div className="crt-titlebar" onClick={() => setExpanded(e => !e)}>
           <span className="crt-led" />
           <span className="crt-model">Terminal</span>
-          <button className="crt-collapse-btn" onClick={() => setExpanded(e => !e)}>
+          <button className="crt-collapse-btn" >
             {expanded ? <Minus size={20} /> : <Plus size={20} />}
           </button>
         </div>
