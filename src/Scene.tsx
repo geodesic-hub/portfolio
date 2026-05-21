@@ -10,7 +10,7 @@ import IntroView from './views/IntroView'
 import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import AboutView from './views/AboutView'
-import { LightbulbOff, Lightbulb } from 'lucide-react'
+import { LightbulbOff, Lightbulb, Mouse } from 'lucide-react'
 import CloudMaterial from './CloudMaterial'
 import Joystick from './Joystick'
 import './Scene.css'
@@ -204,7 +204,17 @@ export default function Scene() {
         />
       )}
 
-      <ComputerHUD visible={hudVisible} content={hudContent} />
+      <div className="scene-bottom-overlay">
+        {!showLoading && (
+          <div className="scene-joystick-row">
+            <div className="scene-joystick">
+              <Joystick deltaRef={joystickRef} />
+              <div className="scene-joystick-label">PAN</div>
+            </div>
+          </div>
+        )}
+        <ComputerHUD visible={hudVisible} content={hudContent} />
+      </div>
 
       {wipVisible && !showLoading && (
         <div className="scene-wip-badge">
@@ -215,6 +225,14 @@ export default function Scene() {
 
       {hudVisible && (
         <div className="scene-controls">
+          <div className="scene-hint">
+            <Mouse size={18} className="scene-hint-icon" />
+            <div className="scene-hint-panel">
+              <div className="scene-hint-row"><span>LEFT DRAG</span><span>ROTATE</span></div>
+              <div className="scene-hint-row"><span>RIGHT DRAG</span><span>PAN</span></div>
+              <div className="scene-hint-row"><span>SCROLL</span><span>ZOOM</span></div>
+            </div>
+          </div>
           <button className="crt-btn" onClick={() => setHudView(v => v === 'about' ? null : 'about')}>
             ABOUT
           </button>
@@ -227,12 +245,6 @@ export default function Scene() {
         </div>
       )}
 
-      {!showLoading && (
-        <div className="scene-joystick">
-          <Joystick deltaRef={joystickRef} />
-          <div className="scene-joystick-label">PAN</div>
-        </div>
-      )}
     </div>
   )
 }

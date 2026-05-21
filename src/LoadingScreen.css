@@ -60,9 +60,6 @@
   padding: 14px 18px;
 }
 
-.ls-panel--wide   { flex: 1.4; }
-.ls-panel--narrow { flex: 1; min-width: 220px; }
-
 .ls-panel-title {
   font-size: 9px;
   letter-spacing: 5px;

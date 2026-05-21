@@ -1,6 +1,6 @@
 .joystick-outer {
-  width: 110px;
-  height: 110px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   border: 1px solid rgba(0, 255, 65, 0.35);
   background: rgba(0, 255, 65, 0.04);
@@ -17,8 +17,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   background: rgba(0, 255, 65, 0.1);
   border: 1px solid rgba(0, 255, 65, 0.6);
@@ -33,7 +33,7 @@
   pointer-events: none;
   line-height: 1;
 }
-.joystick-tick-n { top: 7px;  left: 50%; transform: translateX(-50%); }
-.joystick-tick-s { bottom: 7px; left: 50%; transform: translateX(-50%); }
-.joystick-tick-e { right: 7px; top: 50%;  transform: translateY(-50%); }
-.joystick-tick-w { left: 7px;  top: 50%;  transform: translateY(-50%); }
+.joystick-tick-n { top: 4px;  left: 50%; transform: translateX(-50%); }
+.joystick-tick-s { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.joystick-tick-e { right: 4px; top: 50%;  transform: translateY(-50%); }
+.joystick-tick-w { left: 4px;  top: 50%;  transform: translateY(-50%); }

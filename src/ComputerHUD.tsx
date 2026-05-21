@@ -30,9 +30,9 @@ export default function ComputerHUD({ visible, content }: HUDProps) {
   if (!visible) return null
 
   return (
-    <div style={{ position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, width: '100%', maxWidth: 480, pointerEvents: 'none' }}>
+    <div style={{ display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
 
-      <div ref={panelRef} className="crt-bezel" style={{ pointerEvents: 'auto', width: '100%' }}>
+      <div ref={panelRef} className="crt-bezel" style={{ pointerEvents: 'auto', width: '100%', maxWidth: 480 }}>
 
         <div className="crt-titlebar" onClick={() => setExpanded(e => !e)}>
           <span className="crt-led" />

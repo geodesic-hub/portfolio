@@ -5,7 +5,7 @@ interface JoystickProps {
   deltaRef: React.MutableRefObject<{ x: number; y: number }>
 }
 
-const RADIUS = 38
+const RADIUS = 26
 
 export default function Joystick({ deltaRef }: JoystickProps) {
   const outerRef     = useRef<HTMLDivElement>(null)
