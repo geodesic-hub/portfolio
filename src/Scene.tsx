@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars, Cloud, Clouds } from '@react-three/drei'
+import { CameraControls, Stars, Cloud, Clouds } from '@react-three/drei'
 import * as THREE from 'three'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Room from './Room'
@@ -40,16 +40,16 @@ function FrameCapper({ fps = 60 }: { fps?: number }) {
 
 function CameraIntro({
   cameraActiveRef,
-  orbitRef,
+  controlsRef,
   onDone,
 }: {
   cameraActiveRef: { current: boolean }
-  orbitRef: { current: any }
+  controlsRef: { current: any }
   onDone: () => void
 }) {
   const { camera } = useThree()
-  const progress    = useRef(0)
-  const orbitDisabled = useRef(false)
+  const progress      = useRef(0)
+  const controlsDisabled = useRef(false)
 
   useEffect(() => {
     camera.lookAt(0, 0, 0)
@@ -58,11 +58,9 @@ function CameraIntro({
   useFrame((_, delta) => {
     if (!cameraActiveRef.current) return
 
-    if (!orbitDisabled.current && orbitRef.current) {
-      orbitRef.current.enableRotate = false
-      orbitRef.current.enableZoom = false
-      orbitRef.current.enablePan = false
-      orbitDisabled.current = true
+    if (!controlsDisabled.current && controlsRef.current) {
+      controlsRef.current.enabled = false
+      controlsDisabled.current = true
     }
 
     progress.current = Math.min(progress.current + delta / CAM_DURATION, 1)
@@ -72,11 +70,14 @@ function CameraIntro({
     if (progress.current >= 1) {
       cameraActiveRef.current = false
       progress.current = 0
-      orbitDisabled.current = false
-      if (orbitRef.current) {
-        orbitRef.current.enableRotate = true
-        orbitRef.current.enableZoom = true
-        orbitRef.current.enablePan = true
+      controlsDisabled.current = false
+      if (controlsRef.current) {
+        controlsRef.current.setLookAt(
+          CAM_END.x, CAM_END.y, CAM_END.z,
+          0, 0, 0,
+          false
+        )
+        controlsRef.current.enabled = true
       }
       setTimeout(onDone, 0)
     }
@@ -104,7 +105,7 @@ const ThreeView = memo(function ThreeView({
   onCameraAnimDone: () => void
   cameraActiveRef: { current: boolean }
 }) {
-  const orbitRef = useRef<any>(null)
+  const controlsRef = useRef<any>(null)
 
   return (
     <Canvas
@@ -115,27 +116,24 @@ const ThreeView = memo(function ThreeView({
       frameloop="demand"
     >
       <FrameCapper fps={60} />
-      <OrbitControls
-        ref={orbitRef}
+      <CameraControls
+        ref={controlsRef}
         minPolarAngle={Math.PI * 0.15}
         maxPolarAngle={Math.PI * 0.52}
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI * 0.50}
         minDistance={5}
         maxDistance={55}
-        panSpeed={0.3}
-        zoomToCursor
-        enableDamping
+        dollyToCursor
+        truckSpeed={1.5}
         dampingFactor={0.08}
       />
       <Stars radius={80} depth={60} count={4000} factor={3} saturation={0} fade speed={0.5} />
       <Clouds material={THREE.MeshBasicMaterial} limit={10}>
-        {/* <Float speed={0.4} floatIntensity={0.6} floatingRange={[-0.4, 0.4]}> */}
-          <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
-        {/* </Float> */}
+        <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
       </Clouds>
       <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
-      <CameraIntro cameraActiveRef={cameraActiveRef} orbitRef={orbitRef} onDone={onCameraAnimDone} />
+      <CameraIntro cameraActiveRef={cameraActiveRef} controlsRef={controlsRef} onDone={onCameraAnimDone} />
     </Canvas>
   )
 })
@@ -146,7 +144,7 @@ export default function Scene() {
   const [lightsOn, setLightsOn]           = useState(true)
   const [isLoaded, setIsLoaded]           = useState(false)
   const [showLoading, setShowLoading]     = useState(true)
-  const [, setCameraStarted] = useState(false)
+  const [, setCameraStarted]              = useState(false)
   const [hudVisible, setHudVisible]       = useState(false)
   const [hudView, setHudView]             = useState<HUDView>(null)
   const [wipVisible, setWipVisible]       = useState(true)
