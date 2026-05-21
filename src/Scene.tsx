@@ -1,5 +1,5 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars, Cloud, Clouds, Float } from '@react-three/drei'
+import { OrbitControls, Stars, Cloud, Clouds } from '@react-three/drei'
 import * as THREE from 'three'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Room from './Room'
