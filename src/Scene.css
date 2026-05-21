@@ -3,6 +3,19 @@
   height: 100%;
 }
 
+.scene-wip-close {
+  background: none;
+  border: none;
+  color: #ff6b35;
+  cursor: pointer;
+  font-size: 10px;
+  margin-left: 10px;
+  opacity: 0.7;
+  padding: 0;
+  pointer-events: auto;
+}
+.scene-wip-close:hover { opacity: 1; }
+
 .scene-wip-badge {
   position: fixed;
   top: 20px;
@@ -16,6 +29,8 @@
   padding: 6px 12px;
   pointer-events: none;
   max-width: calc(100vw - 40px);
+  display: flex;
+  align-items: center;
 }
 
 .scene-controls {

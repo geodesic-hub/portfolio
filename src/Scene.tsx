@@ -1,11 +1,9 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
-import { EffectComposer, ChromaticAberration } from '@react-three/postprocessing'
+import { OrbitControls, Stars, Cloud, Clouds, Float } from '@react-three/drei'
 import * as THREE from 'three'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Room from './Room'
 import LoadingScreen from './LoadingScreen'
-import PocketDimension from './PocketDimension'
 import ComputerHUD from './ComputerHUD'
 import ContactView from './views/ContactView'
 import IntroView from './views/IntroView'
@@ -17,7 +15,7 @@ import './Scene.css'
 
 const CAM_START: [number, number, number] = [500, 500, 500]
 const CAM_START_VEC = new THREE.Vector3(...CAM_START)
-const CAM_END = new THREE.Vector3(35, 15, 25)
+const CAM_END = new THREE.Vector3(45, 15, 25)
 const CAM_DURATION = 5
 
 function easeOut(t: number) { return 1 - (1 - t) ** 3 }
@@ -89,7 +87,6 @@ function CameraIntro({
 
 const ThreeView = memo(function ThreeView({
   lightsOn,
-  sceneReady,
   onLoaded,
   onDishClick,
   onSketchClick,
@@ -99,7 +96,6 @@ const ThreeView = memo(function ThreeView({
   cameraActiveRef,
 }: {
   lightsOn: boolean
-  sceneReady: boolean
   onLoaded: () => void
   onDishClick: () => void
   onSketchClick: () => void
@@ -126,24 +122,20 @@ const ThreeView = memo(function ThreeView({
         minAzimuthAngle={0}
         maxAzimuthAngle={Math.PI * 0.50}
         minDistance={5}
-        maxDistance={60}
+        maxDistance={55}
+        panSpeed={0.3}
+        zoomToCursor
         enableDamping
         dampingFactor={0.08}
       />
-      {/* <PocketDimension sceneReady={sceneReady} /> */}
+      <Stars radius={80} depth={60} count={4000} factor={3} saturation={0} fade speed={0.5} />
+      <Clouds material={THREE.MeshBasicMaterial} limit={10}>
+        {/* <Float speed={0.4} floatIntensity={0.6} floatingRange={[-0.4, 0.4]}> */}
+          <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
+        {/* </Float> */}
+      </Clouds>
       <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
       <CameraIntro cameraActiveRef={cameraActiveRef} orbitRef={orbitRef} onDone={onCameraAnimDone} />
-      {/* <EffectComposer multisampling={8}>
-        <ChromaticAberration offset={new THREE.Vector2(0.0004, 0.0004)} /> */}
-        {/* <Glitch
-          delay={new THREE.Vector2(20, 20)}
-          duration={new THREE.Vector2(0.1, 0.1)}
-          strength={new THREE.Vector2(0.01, 0.02)}
-          mode={GlitchMode.DISABLED}
-          active
-          ratio={0.85}
-        /> */}
-      {/* </EffectComposer> */}
     </Canvas>
   )
 })
@@ -151,12 +143,13 @@ const ThreeView = memo(function ThreeView({
 type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'about' | null
 
 export default function Scene() {
-  const [lightsOn, setLightsOn]         = useState(true)
-  const [isLoaded, setIsLoaded]         = useState(false)
-  const [showLoading, setShowLoading]   = useState(true)
-  const [cameraStarted, setCameraStarted] = useState(false)
-  const [hudVisible, setHudVisible]     = useState(false)
-  const [hudView, setHudView]           = useState<HUDView>(null)
+  const [lightsOn, setLightsOn]           = useState(true)
+  const [isLoaded, setIsLoaded]           = useState(false)
+  const [showLoading, setShowLoading]     = useState(true)
+  const [, setCameraStarted] = useState(false)
+  const [hudVisible, setHudVisible]       = useState(false)
+  const [hudView, setHudView]             = useState<HUDView>(null)
+  const [wipVisible, setWipVisible]       = useState(true)
   const cameraActiveRef = useRef(false)
 
   const handleLoaded         = useCallback(() => setIsLoaded(true), [])
@@ -179,7 +172,6 @@ export default function Scene() {
     <div className="scene-root">
       <ThreeView
         lightsOn={lightsOn}
-        sceneReady={cameraStarted}
         onLoaded={handleLoaded}
         onDishClick={handleDishClick}
         onSketchClick={handleSketchClick}
@@ -199,9 +191,12 @@ export default function Scene() {
 
       <ComputerHUD visible={hudVisible} content={hudContent} />
 
-      <div className="scene-wip-badge">
-        ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!
-      </div>
+      {wipVisible && !showLoading && (
+        <div className="scene-wip-badge">
+          ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!
+          <button className="scene-wip-close" onClick={() => setWipVisible(false)}>✕</button>
+        </div>
+      )}
 
       {hudVisible && (
         <div className="scene-controls">
