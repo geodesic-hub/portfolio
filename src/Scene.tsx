@@ -130,11 +130,11 @@ const ThreeView = memo(function ThreeView({
         enableDamping
         dampingFactor={0.08}
       />
-      <PocketDimension sceneReady={sceneReady} />
+      {/* <PocketDimension sceneReady={sceneReady} /> */}
       <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
       <CameraIntro cameraActiveRef={cameraActiveRef} orbitRef={orbitRef} onDone={onCameraAnimDone} />
-      <EffectComposer multisampling={8}>
-        <ChromaticAberration offset={new THREE.Vector2(0.0004, 0.0004)} />
+      {/* <EffectComposer multisampling={8}>
+        <ChromaticAberration offset={new THREE.Vector2(0.0004, 0.0004)} /> */}
         {/* <Glitch
           delay={new THREE.Vector2(20, 20)}
           duration={new THREE.Vector2(0.1, 0.1)}
@@ -143,7 +143,7 @@ const ThreeView = memo(function ThreeView({
           active
           ratio={0.85}
         /> */}
-      </EffectComposer>
+      {/* </EffectComposer> */}
     </Canvas>
   )
 })

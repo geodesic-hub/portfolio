@@ -44,9 +44,13 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
   useFrame((state, delta) => {
     if (dishRef.current) {
       dishRef.current.rotation.y += delta * 0.8
-      const dishScale = dishHovered.current ? SCALE_HOVER : SCALE_NORMAL
-      dishRef.current.scale.lerp(dishScale, delta * 6)
-      dishStandRef.current?.scale.lerp(dishScale, delta * 6)
+      const hit = state.raycaster.intersectObject(dishRef.current, false).length > 0
+      if (hit !== dishHovered.current) {
+        dishHovered.current = hit
+        document.body.style.cursor = hit ? 'pointer' : 'auto'
+      }
+      dishRef.current.scale.lerp(hit ? SCALE_HOVER : SCALE_NORMAL, delta * 6)
+      dishStandRef.current?.scale.lerp(hit ? SCALE_HOVER : SCALE_NORMAL, delta * 6)
     }
 
     if (coolerRef.current) {
@@ -171,12 +175,6 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
           if (e.object.name === 'sketch_target')      { e.stopPropagation(); onSketchClick() }
           if (e.object.name === 'git_target_t1')   { e.stopPropagation(); onGithubClick() }
           if (e.object.name === 'linkedin_target_t1') { e.stopPropagation(); onLinkedinClick() }
-        }}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-          if (e.object.name === 'dish_target_t1') { dishHovered.current = true;  document.body.style.cursor = 'pointer' }
-        }}
-        onPointerOut={(e: ThreeEvent<PointerEvent>) => {
-          if (e.object.name === 'dish_target_t1') { dishHovered.current = false; document.body.style.cursor = 'auto' }
         }}
       />
       {smokePos && <Smoke position={smokePos} />}

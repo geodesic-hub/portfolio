@@ -15,6 +15,7 @@
   border: 1px solid rgba(255, 107, 53, 0.35);
   padding: 6px 12px;
   pointer-events: none;
+  max-width: calc(100vw - 40px);
 }
 
 .scene-controls {
@@ -25,6 +26,27 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+@media (max-width: 540px) {
+  .scene-wip-badge {
+    top: 64px;
+    left: 12px;
+    right: 12px;
+    font-size: 10px;
+    max-width: unset;
+  }
+
+  .scene-controls {
+    top: 16px;
+    right: 16px;
+    gap: 8px;
+  }
+
+  .scene-light-btn svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 
