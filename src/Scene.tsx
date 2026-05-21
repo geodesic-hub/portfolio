@@ -11,6 +11,8 @@ import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import AboutView from './views/AboutView'
 import { LightbulbOff, Lightbulb } from 'lucide-react'
+import CloudMaterial from './CloudMaterial'
+import Joystick from './Joystick'
 import './Scene.css'
 
 const CAM_START: [number, number, number] = [500, 500, 500]
@@ -48,12 +50,10 @@ function CameraIntro({
   onDone: () => void
 }) {
   const { camera } = useThree()
-  const progress      = useRef(0)
+  const progress         = useRef(0)
   const controlsDisabled = useRef(false)
 
-  useEffect(() => {
-    camera.lookAt(0, 0, 0)
-  }, [camera])
+  useEffect(() => { camera.lookAt(0, 0, 0) }, [camera])
 
   useFrame((_, delta) => {
     if (!cameraActiveRef.current) return
@@ -72,11 +72,7 @@ function CameraIntro({
       progress.current = 0
       controlsDisabled.current = false
       if (controlsRef.current) {
-        controlsRef.current.setLookAt(
-          CAM_END.x, CAM_END.y, CAM_END.z,
-          0, 0, 0,
-          false
-        )
+        controlsRef.current.setLookAt(CAM_END.x, CAM_END.y, CAM_END.z, 0, 0, 0, false)
         controlsRef.current.enabled = true
       }
       setTimeout(onDone, 0)
@@ -86,8 +82,25 @@ function CameraIntro({
   return null
 }
 
+function JoystickCameraDriver({
+  joystickRef,
+  controlsRef,
+}: {
+  joystickRef: { current: { x: number; y: number } }
+  controlsRef: { current: any }
+}) {
+  useFrame((_, delta) => {
+    const { x, y } = joystickRef.current
+    if ((Math.abs(x) > 0.04 || Math.abs(y) > 0.04) && controlsRef.current) {
+      controlsRef.current.truck(x * delta * 8, y * delta * 8, false)
+    }
+  })
+  return null
+}
+
 const ThreeView = memo(function ThreeView({
   lightsOn,
+  joystickRef,
   onLoaded,
   onDishClick,
   onSketchClick,
@@ -97,6 +110,7 @@ const ThreeView = memo(function ThreeView({
   cameraActiveRef,
 }: {
   lightsOn: boolean
+  joystickRef: { current: { x: number; y: number } }
   onLoaded: () => void
   onDishClick: () => void
   onSketchClick: () => void
@@ -125,15 +139,16 @@ const ThreeView = memo(function ThreeView({
         minDistance={5}
         maxDistance={55}
         dollyToCursor
-        truckSpeed={1.5}
+        truckSpeed={.8}
         dampingFactor={0.08}
       />
       <Stars radius={80} depth={60} count={4000} factor={3} saturation={0} fade speed={0.5} />
-      <Clouds material={THREE.MeshBasicMaterial} limit={10}>
+      <Clouds material={CloudMaterial} limit={10}>
         <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
       </Clouds>
       <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
       <CameraIntro cameraActiveRef={cameraActiveRef} controlsRef={controlsRef} onDone={onCameraAnimDone} />
+      <JoystickCameraDriver joystickRef={joystickRef} controlsRef={controlsRef} />
     </Canvas>
   )
 })
@@ -149,6 +164,7 @@ export default function Scene() {
   const [hudView, setHudView]             = useState<HUDView>(null)
   const [wipVisible, setWipVisible]       = useState(true)
   const cameraActiveRef = useRef(false)
+  const joystickRef     = useRef({ x: 0, y: 0 })
 
   const handleLoaded         = useCallback(() => setIsLoaded(true), [])
   const handleDishClick      = useCallback(() => setHudView('contact'), [])
@@ -170,6 +186,7 @@ export default function Scene() {
     <div className="scene-root">
       <ThreeView
         lightsOn={lightsOn}
+        joystickRef={joystickRef}
         onLoaded={handleLoaded}
         onDishClick={handleDishClick}
         onSketchClick={handleSketchClick}
@@ -207,6 +224,13 @@ export default function Scene() {
           >
             {lightsOn ? <LightbulbOff size={32} /> : <Lightbulb size={32} />}
           </button>
+        </div>
+      )}
+
+      {!showLoading && (
+        <div className="scene-joystick">
+          <Joystick deltaRef={joystickRef} />
+          <div className="scene-joystick-label">PAN</div>
         </div>
       )}
     </div>
