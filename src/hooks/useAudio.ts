@@ -19,11 +19,7 @@ export function useAudio() {
         loadingRef.current!.play()
       },
     })
-    ambientRef.current = new Howl({
-      src: ['/music/music1.mp3'],
-      volume: 0,
-      sprite: { main: [0, 110000, true] },
-    })
+    ambientRef.current = new Howl({ src: ['/music/music1.mp3'], volume: 0, loop: true })
     return () => {
       loadingRef.current?.unload()
       ambientRef.current?.unload()
@@ -47,7 +43,7 @@ export function useAudio() {
 
   const startAmbient = () => {
     const ambient = ambientRef.current
-    if (ambient) { ambient.play('main'); ambient.fade(0, 0.4, 3000) }
+    if (ambient) { ambient.play(); ambient.fade(0, 0.4, 3000) }
   }
 
   const toggleMute = () => {

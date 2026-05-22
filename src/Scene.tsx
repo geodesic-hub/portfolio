@@ -5,6 +5,7 @@ import ContactView from './views/ContactView'
 import IntroView from './views/IntroView'
 import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
+import LinkedinView from './views/LinkedinView'
 import AboutView from './views/AboutView'
 import { Mouse } from 'lucide-react'
 import Joystick from './Joystick'
@@ -13,7 +14,7 @@ import { useAudio } from './hooks/useAudio'
 import gsap from 'gsap'
 import './Scene.css'
 
-type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'about' | null
+type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'linkedin' | 'about' | null
 
 export default function Scene() {
   const { playLoading, fadeOutLoading, startAmbient, muted, toggleMute } = useAudio()
@@ -51,14 +52,15 @@ export default function Scene() {
   const handleDishClick      = useCallback(() => setHudView('contact'), [])
   const handleSketchClick    = useCallback(() => setHudView('sketch'), [])
   const handleGithubClick    = useCallback(() => setHudView('github'), [])
-  const handleLinkedinClick  = useCallback(() => window.open('https://www.linkedin.com/in/harshvardhan-singh-chouhan-670a75156/', '_blank'), [])
+  const handleLinkedinClick  = useCallback(() => setHudView('linkedin'), [])
   const handleCameraAnimDone = useCallback(() => { startAmbient(); setHudVisible(true); setHudView('intro') }, [])
 
   const hudContent = useMemo(() => {
     if (hudView === 'intro')   return <IntroView onDone={() => setHudView(null)} />
     if (hudView === 'contact') return <ContactView />
     if (hudView === 'sketch')  return <SketchView />
-    if (hudView === 'github')  return <GithubView />
+    if (hudView === 'github')   return <GithubView />
+    if (hudView === 'linkedin') return <LinkedinView />
     if (hudView === 'about')   return <AboutView />
     return null
   }, [hudView])
