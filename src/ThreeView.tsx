@@ -7,7 +7,7 @@ import CloudMaterial from './CloudMaterial'
 import gsap from 'gsap'
 
 export const CAM_START: [number, number, number] = [500, 500, 500]
-export const CAM_END    = new THREE.Vector3(35, 15, 15)
+export const CAM_END    = new THREE.Vector3(35, 15, 18)
 export const CAM_DURATION = 5
 
 function FrameCapper({ fps = 60 }: { fps?: number }) {
