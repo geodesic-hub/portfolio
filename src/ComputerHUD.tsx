@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import './ComputerHUD.css'
-import { Minus, Plus, RotateCcw, LightbulbOff, Lightbulb } from 'lucide-react'
+import { Minus, Plus, RotateCcw, LightbulbOff, Lightbulb, Volume2, VolumeX } from 'lucide-react'
 
 interface HUDProps {
   visible: boolean
   content: React.ReactNode
   lightsOn?: boolean
+  muted?: boolean
   onReset?: () => void
   onToggleLights?: () => void
+  onToggleMute?: () => void
 }
 
-export default function ComputerHUD({ visible, content, lightsOn, onReset, onToggleLights }: HUDProps) {
+export default function ComputerHUD({ visible, content, lightsOn, muted, onReset, onToggleLights, onToggleMute }: HUDProps) {
   const [expanded, setExpanded]     = useState(false)
   const panelRef      = useRef<HTMLDivElement>(null)
   const screenWrapRef = useRef<HTMLDivElement>(null)
@@ -74,6 +76,15 @@ export default function ComputerHUD({ visible, content, lightsOn, onReset, onTog
                   title={lightsOn ? 'Lights off' : 'Lights on'}
                 >
                   {lightsOn ? <LightbulbOff size={18} /> : <Lightbulb size={18} />}
+                </button>
+              )}
+              {onToggleMute && (
+                <button
+                  className={`crt-titlebar-btn ${muted ? '' : 'crt-titlebar-btn--lit'}`}
+                  onClick={e => { squeeze(e.currentTarget); onToggleMute() }}
+                  title={muted ? 'Unmute' : 'Mute'}
+                >
+                  {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                 </button>
               )}
             </div>

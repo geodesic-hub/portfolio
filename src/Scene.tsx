@@ -9,12 +9,15 @@ import AboutView from './views/AboutView'
 import { Mouse } from 'lucide-react'
 import Joystick from './Joystick'
 import ThreeView from './ThreeView'
+import { useAudio } from './hooks/useAudio'
 import gsap from 'gsap'
 import './Scene.css'
 
 type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'about' | null
 
 export default function Scene() {
+  const { playLoading, fadeOutLoading, startAmbient, muted, toggleMute } = useAudio()
+
   const [lightsOn, setLightsOn]           = useState(true)
   const [isLoaded, setIsLoaded]           = useState(false)
   const [showLoading, setShowLoading]     = useState(true)
@@ -49,7 +52,7 @@ export default function Scene() {
   const handleSketchClick    = useCallback(() => setHudView('sketch'), [])
   const handleGithubClick    = useCallback(() => setHudView('github'), [])
   const handleLinkedinClick  = useCallback(() => window.open('https://www.linkedin.com/in/harshvardhan-singh-chouhan-670a75156/', '_blank'), [])
-  const handleCameraAnimDone = useCallback(() => { setHudVisible(true); setHudView('intro') }, [])
+  const handleCameraAnimDone = useCallback(() => { startAmbient(); setHudVisible(true); setHudView('intro') }, [])
 
   const hudContent = useMemo(() => {
     if (hudView === 'intro')   return <IntroView onDone={() => setHudView(null)} />
@@ -78,7 +81,8 @@ export default function Scene() {
       {showLoading && (
         <LoadingScreen
           isLoaded={isLoaded}
-          onFadeStart={() => { cameraActiveRef.current = true; setCameraStarted(true) }}
+          onStart={playLoading}
+          onFadeStart={() => { fadeOutLoading(); cameraActiveRef.current = true; setCameraStarted(true) }}
           onHide={() => { setShowLoading(false) }}
         />
       )}
@@ -97,8 +101,10 @@ export default function Scene() {
             visible={hudVisible}
             content={hudContent}
             lightsOn={lightsOn}
+            muted={muted}
             onReset={() => cameraResetRef.current?.()}
             onToggleLights={() => setLightsOn(p => !p)}
+            onToggleMute={toggleMute}
           />
           {hudVisible && (
             <div className="scene-hint">

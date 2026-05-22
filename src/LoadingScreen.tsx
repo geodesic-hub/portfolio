@@ -16,7 +16,9 @@ const FINAL = {
   z: (Math.random() * 1800 - 900).toFixed(4),
 }
 
-type Phase = 'messages' | 'searching' | 'lockX' | 'lockY' | 'lockZ' | 'locked'
+const MSG_TOTAL_MS = MESSAGES.length * 1500
+
+type Phase = 'waiting' | 'messages' | 'searching' | 'lockX' | 'lockY' | 'lockZ' | 'locked'
 
 function randCoord() { return (Math.random() * 1999 - 999).toFixed(4) }
 
@@ -31,27 +33,39 @@ function Bar({ value }: { value: number }) {
   )
 }
 
-interface Props { isLoaded: boolean; onFadeStart: () => void; onHide: () => void }
+interface Props { isLoaded: boolean; onFadeStart: () => void; onHide: () => void; onStart?: () => void }
 
-export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) {
+export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }: Props) {
   const [msgStep, setMsgStep] = useState(0)
-  const [phase, setPhase]     = useState<Phase>('messages')
+  const [phase, setPhase]     = useState<Phase>('waiting')
   const [coords, setCoords]   = useState({ x: randCoord(), y: randCoord(), z: randCoord() })
   const [status, setStatus]   = useState({ signal: 0.4, stability: 0.75, anomaly: 0.95 })
 
-  const overlayRef   = useRef<HTMLDivElement>(null)
-  const headerRef    = useRef<HTMLDivElement>(null)
-  const topRowRef    = useRef<HTMLDivElement>(null)
-  const statusRef    = useRef<HTMLDivElement>(null)
+  const overlayRef    = useRef<HTMLDivElement>(null)
+  const headerRef     = useRef<HTMLDivElement>(null)
+  const topRowRef     = useRef<HTMLDivElement>(null)
+  const statusRef     = useRef<HTMLDivElement>(null)
+  const startedAtRef  = useRef(0)
 
+  // Messages animate during 'waiting'; transition to 'searching' is scheduled on click
   useEffect(() => {
-    const timers: ReturnType<typeof setTimeout>[] = []
-    MESSAGES.forEach((_, i) => {
-      if (i > 0) timers.push(setTimeout(() => setMsgStep(i), i * 1500))
-    })
-    timers.push(setTimeout(() => setPhase('searching'), MESSAGES.length * 1500))
-    return () => timers.forEach(clearTimeout)
-  }, [])
+    if (phase === 'waiting') {
+      startedAtRef.current = Date.now()
+      const timers: ReturnType<typeof setTimeout>[] = []
+      MESSAGES.forEach((_, i) => {
+        if (i > 0) timers.push(setTimeout(() => setMsgStep(i), i * 1500))
+      })
+      return () => timers.forEach(clearTimeout)
+    }
+
+    if (phase === 'messages') {
+      // Schedule 'searching' based on how much time has already elapsed in 'waiting'
+      const elapsed = Date.now() - startedAtRef.current
+      const remaining = Math.max(0, MSG_TOTAL_MS - elapsed)
+      const t = setTimeout(() => setPhase('searching'), remaining)
+      return () => clearTimeout(t)
+    }
+  }, [phase])
 
   useEffect(() => {
     const next: Partial<Record<Phase, [Phase, number]>> = {
@@ -85,7 +99,7 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
     const interval = setInterval(() => {
       if (phase === 'locked') {
         setStatus({ signal: 1, stability: 0.15, anomaly: 0 })
-      } else if (phase !== 'messages') {
+      } else if (phase !== 'messages' && phase !== 'waiting') {
         setStatus({
           signal:    0.2 + Math.random() * 0.6,
           stability: 0.1 + Math.random() * 0.5,
@@ -110,14 +124,14 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
     return () => clearTimeout(t)
   }, [isLoaded, phase])
 
-  const showCoords = phase !== 'messages'
+  const isWaiting  = phase === 'waiting'
+  const showCoords = !isWaiting && phase !== 'messages'
   const xLocked = ['lockX', 'lockY', 'lockZ', 'locked'].includes(phase)
   const yLocked = ['lockY', 'lockZ', 'locked'].includes(phase)
   const zLocked = ['lockZ', 'locked'].includes(phase)
 
   return (
     <div ref={overlayRef} className="ls-overlay">
-
       <div className="ls-container">
 
         <div ref={headerRef} className="ls-header">
@@ -136,50 +150,61 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
                 {i === msgStep && <span className="ls-blink">_</span>}
               </div>
             ))}
-          </div>
-
-          <div className="ls-panel ls-panel--narrow">
-            <div className="ls-panel-title">COORDINATES</div>
-            {!showCoords ? (
-              <div className="ls-awaiting-signal">AWAITING SIGNAL...</div>
-            ) : (
-              <>
-                {([['X', coords.x, FINAL.x, xLocked], ['Y', coords.y, FINAL.y, yLocked], ['Z', coords.z, FINAL.z, zLocked]] as [string, string, string, boolean][]).map(
-                  ([axis, live, final, locked]) => (
-                    <div key={axis} className="ls-axis-row">
-                      <div className="ls-axis-label">{axis} AXIS</div>
-                      <div className={`ls-axis-value ${locked ? 'ls-axis-value--locked' : 'ls-axis-value--unlocked'}`}>
-                        {locked ? final : live}
-                        {locked && <span className="ls-axis-lock-badge">LOCKED</span>}
-                      </div>
-                    </div>
-                  )
-                )}
-                <div className="ls-target-status">
-                  {phase === 'locked' ? '● INITIATING WARP' : '○ SCANNING...'}
-                </div>
-              </>
+            {isWaiting && msgStep === MESSAGES.length - 1 && (
+              <div className="ls-cta">
+                <button className="crt-btn" onClick={() => { onStart?.(); setPhase('messages') }}>
+                  [ INITIATE COORDINATE RELOCATION SEQUENCE ]
+                </button>
+              </div>
             )}
           </div>
 
+          {!isWaiting && (
+            <div className="ls-panel ls-panel--narrow">
+              <div className="ls-panel-title">COORDINATES</div>
+              {!showCoords ? (
+                <div className="ls-awaiting-signal">AWAITING SIGNAL...</div>
+              ) : (
+                <>
+                  {([['X', coords.x, FINAL.x, xLocked], ['Y', coords.y, FINAL.y, yLocked], ['Z', coords.z, FINAL.z, zLocked]] as [string, string, string, boolean][]).map(
+                    ([axis, live, final, locked]) => (
+                      <div key={axis} className="ls-axis-row">
+                        <div className="ls-axis-label">{axis} AXIS</div>
+                        <div className={`ls-axis-value ${locked ? 'ls-axis-value--locked' : 'ls-axis-value--unlocked'}`}>
+                          {locked ? final : live}
+                          {locked && <span className="ls-axis-lock-badge">LOCKED</span>}
+                        </div>
+                      </div>
+                    )
+                  )}
+                  <div className="ls-target-status">
+                    {phase === 'locked' ? '● INITIATING WARP' : '○ SCANNING...'}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
         </div>
 
-        <div ref={statusRef} className="ls-panel">
-          <div className="ls-panel-title">SYSTEM STATUS</div>
-          <div className="ls-status-row">
-            {[
-              ['SIGNAL INTEGRITY',      status.signal],
-              ['DIMENSIONAL STABILITY', status.stability],
-              ['ANOMALY STRENGTH',      status.anomaly],
-            ].map(([label, val]) => (
-              <div key={label as string} className="ls-status-col">
-                <div className="ls-status-label">{label as string}</div>
-                <Bar value={val as number} />
-                <span className="ls-status-value">{Math.round((val as number) * 100)}%</span>
-              </div>
-            ))}
+        {!isWaiting && (
+          <div ref={statusRef} className="ls-panel">
+            <div className="ls-panel-title">SYSTEM STATUS</div>
+            <div className="ls-status-row">
+              {[
+                ['SIGNAL INTEGRITY',      status.signal],
+                ['DIMENSIONAL STABILITY', status.stability],
+                ['ANOMALY STRENGTH',      status.anomaly],
+              ].map(([label, val]) => (
+                <div key={label as string} className="ls-status-col">
+                  <div className="ls-status-label">{label as string}</div>
+                  <Bar value={val as number} />
+                  <span className="ls-status-value">{Math.round((val as number) * 100)}%</span>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
       </div>
     </div>
