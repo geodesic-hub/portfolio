@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import gsap from 'gsap'
 import './LoadingScreen.css'
 
 const MESSAGES = [
@@ -34,10 +35,14 @@ interface Props { isLoaded: boolean; onFadeStart: () => void; onHide: () => void
 
 export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) {
   const [msgStep, setMsgStep] = useState(0)
-  const [phase, setPhase] = useState<Phase>('messages')
-  const [coords, setCoords] = useState({ x: randCoord(), y: randCoord(), z: randCoord() })
-  const [status, setStatus] = useState({ signal: 0.4, stability: 0.75, anomaly: 0.95 })
-  const [fading, setFading] = useState(false)
+  const [phase, setPhase]     = useState<Phase>('messages')
+  const [coords, setCoords]   = useState({ x: randCoord(), y: randCoord(), z: randCoord() })
+  const [status, setStatus]   = useState({ signal: 0.4, stability: 0.75, anomaly: 0.95 })
+
+  const overlayRef   = useRef<HTMLDivElement>(null)
+  const headerRef    = useRef<HTMLDivElement>(null)
+  const topRowRef    = useRef<HTMLDivElement>(null)
+  const statusRef    = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const timers: ReturnType<typeof setTimeout>[] = []
@@ -82,9 +87,9 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
         setStatus({ signal: 1, stability: 0.15, anomaly: 0 })
       } else if (phase !== 'messages') {
         setStatus({
-          signal: 0.2 + Math.random() * 0.6,
+          signal:    0.2 + Math.random() * 0.6,
           stability: 0.1 + Math.random() * 0.5,
-          anomaly: 0.5 + Math.random() * 0.5,
+          anomaly:   0.5 + Math.random() * 0.5,
         })
       }
     }, 350)
@@ -93,7 +98,15 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
 
   useEffect(() => {
     if (!isLoaded || phase !== 'locked') return
-    const t = setTimeout(() => { setFading(true); onFadeStart(); setTimeout(onHide, 900) }, 1500)
+    const t = setTimeout(() => {
+      onFadeStart()
+
+      const tl = gsap.timeline({ onComplete: onHide })
+      tl.to(statusRef.current,  { y: 16, opacity: 0, duration: 0.3, ease: 'power2.in' })
+      tl.to(topRowRef.current,  { y: -16, opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.15')
+      tl.to(headerRef.current,  { opacity: 0, duration: 0.2, ease: 'power1.in' }, '-=0.1')
+      tl.to(overlayRef.current, { opacity: 0, duration: 0.35, ease: 'power1.in' }, '-=0.05')
+    }, 1500)
     return () => clearTimeout(t)
   }, [isLoaded, phase])
 
@@ -103,20 +116,17 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
   const zLocked = ['lockZ', 'locked'].includes(phase)
 
   return (
-    <div className="ls-overlay" style={{ opacity: fading ? 0 : 1 }}>
+    <div ref={overlayRef} className="ls-overlay">
 
       <div className="ls-container">
 
-        {/* Header */}
-        <div className="ls-header">
+        <div ref={headerRef} className="ls-header">
           <div className="ls-header-label">SYSTEM ALERT</div>
           <div className="ls-header-title">SPATIAL ANOMALY RESPONSE</div>
         </div>
 
-        {/* Top row: incident log + coordinates */}
-        <div className="ls-top-row">
+        <div ref={topRowRef} className="ls-top-row">
 
-          {/* Incident log */}
           <div className="ls-panel ls-panel--wide">
             <div className="ls-panel-title">INCIDENT LOG</div>
             {MESSAGES.slice(0, msgStep + 1).map((msg, i) => (
@@ -128,7 +138,6 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
             ))}
           </div>
 
-          {/* Coordinates */}
           <div className="ls-panel ls-panel--narrow">
             <div className="ls-panel-title">COORDINATES</div>
             {!showCoords ? (
@@ -152,16 +161,16 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide }: Props) 
               </>
             )}
           </div>
+
         </div>
 
-        {/* Status bars */}
-        <div className="ls-panel">
+        <div ref={statusRef} className="ls-panel">
           <div className="ls-panel-title">SYSTEM STATUS</div>
           <div className="ls-status-row">
             {[
-              ['SIGNAL INTEGRITY', status.signal],
+              ['SIGNAL INTEGRITY',      status.signal],
               ['DIMENSIONAL STABILITY', status.stability],
-              ['ANOMALY STRENGTH', status.anomaly],
+              ['ANOMALY STRENGTH',      status.anomaly],
             ].map(([label, val]) => (
               <div key={label as string} className="ls-status-col">
                 <div className="ls-status-label">{label as string}</div>

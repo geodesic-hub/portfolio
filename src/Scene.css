@@ -65,23 +65,6 @@
 }
 
 
-.scene-light-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  transition: color 0.3s, filter 0.3s;
-}
-
-.scene-light-btn-on {
-  color: #00ff41;
-  filter: drop-shadow(0 0 6px #00ff41);
-}
-
-.scene-light-btn-off {
-  color: #ff6b35;
-  filter: drop-shadow(0 0 6px #ff6b35);
-}
 
 .scene-bottom-overlay {
   position: fixed;
@@ -98,17 +81,27 @@
   display: none;
 }
 
+/* ── Terminal row (HUD wrapper) ────────────────────────────── */
+.scene-terminal-row {
+  width: 100%;
+  pointer-events: none;
+}
+
 /* ── Controls hint ─────────────────────────────────────────── */
 .scene-hint {
-  position: relative;
+  position: fixed;
+  left: calc(50% + 240px + 10px);
+  bottom: 20px;
   color: var(--color-green-dim);
   cursor: default;
+  pointer-events: auto;
+  z-index: 9999;
 }
 
 .scene-hint-panel {
   display: none;
   position: absolute;
-  top: calc(100% + 10px);
+  bottom: calc(100% + 4px);
   right: 0;
   background: rgba(0, 8, 12, 0.9);
   border: 1px solid var(--color-green-border);
@@ -126,6 +119,7 @@
 
 .scene-hint-row { display: flex; gap: 20px; justify-content: space-between; }
 .scene-hint-row span:first-child { opacity: 0.5; }
+
 
 @media (max-width: 900px) {
   .scene-hint { display: none; }

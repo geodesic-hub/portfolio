@@ -1,8 +1,4 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { CameraControls, Stars, Cloud, Clouds } from '@react-three/drei'
-import * as THREE from 'three'
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Room from './Room'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import LoadingScreen from './LoadingScreen'
 import ComputerHUD from './ComputerHUD'
 import ContactView from './views/ContactView'
@@ -10,148 +6,11 @@ import IntroView from './views/IntroView'
 import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import AboutView from './views/AboutView'
-import { LightbulbOff, Lightbulb, Mouse } from 'lucide-react'
-import CloudMaterial from './CloudMaterial'
+import { Mouse } from 'lucide-react'
 import Joystick from './Joystick'
+import ThreeView from './ThreeView'
+import gsap from 'gsap'
 import './Scene.css'
-
-const CAM_START: [number, number, number] = [500, 500, 500]
-const CAM_START_VEC = new THREE.Vector3(...CAM_START)
-const CAM_END = new THREE.Vector3(45, 15, 25)
-const CAM_DURATION = 5
-
-function easeOut(t: number) { return 1 - (1 - t) ** 3 }
-
-function FrameCapper({ fps = 60 }: { fps?: number }) {
-  const { invalidate } = useThree()
-
-  useEffect(() => {
-    const interval = 1000 / fps
-    let last = 0
-    let raf: number
-    const tick = (now: number) => {
-      raf = requestAnimationFrame(tick)
-      if (now - last >= interval) { last = now; invalidate() }
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [fps, invalidate])
-
-  return null
-}
-
-function CameraIntro({
-  cameraActiveRef,
-  controlsRef,
-  onDone,
-}: {
-  cameraActiveRef: { current: boolean }
-  controlsRef: { current: any }
-  onDone: () => void
-}) {
-  const { camera } = useThree()
-  const progress         = useRef(0)
-  const controlsDisabled = useRef(false)
-
-  useEffect(() => { camera.lookAt(0, 0, 0) }, [camera])
-
-  useFrame((_, delta) => {
-    if (!cameraActiveRef.current) return
-
-    if (!controlsDisabled.current && controlsRef.current) {
-      controlsRef.current.enabled = false
-      controlsDisabled.current = true
-    }
-
-    progress.current = Math.min(progress.current + delta / CAM_DURATION, 1)
-    camera.position.lerpVectors(CAM_START_VEC, CAM_END, easeOut(progress.current))
-    camera.lookAt(0, 0, 0)
-
-    if (progress.current >= 1) {
-      cameraActiveRef.current = false
-      progress.current = 0
-      controlsDisabled.current = false
-      if (controlsRef.current) {
-        controlsRef.current.setLookAt(CAM_END.x, CAM_END.y, CAM_END.z, 0, 0, 0, false)
-        controlsRef.current.enabled = true
-      }
-      setTimeout(onDone, 0)
-    }
-  })
-
-  return null
-}
-
-function JoystickCameraDriver({
-  joystickRef,
-  controlsRef,
-}: {
-  joystickRef: { current: { x: number; y: number } }
-  controlsRef: { current: any }
-}) {
-  useFrame((_, delta) => {
-    const { x, y } = joystickRef.current
-    if ((Math.abs(x) > 0.04 || Math.abs(y) > 0.04) && controlsRef.current) {
-      controlsRef.current.truck(x * delta * 8, y * delta * 8, false)
-    }
-  })
-  return null
-}
-
-const ThreeView = memo(function ThreeView({
-  lightsOn,
-  joystickRef,
-  onLoaded,
-  onDishClick,
-  onSketchClick,
-  onGithubClick,
-  onLinkedinClick,
-  onCameraAnimDone,
-  cameraActiveRef,
-}: {
-  lightsOn: boolean
-  joystickRef: { current: { x: number; y: number } }
-  onLoaded: () => void
-  onDishClick: () => void
-  onSketchClick: () => void
-  onGithubClick: () => void
-  onLinkedinClick: () => void
-  onCameraAnimDone: () => void
-  cameraActiveRef: { current: boolean }
-}) {
-  const controlsRef = useRef<any>(null)
-
-  return (
-    <Canvas
-      camera={{ position: CAM_START, fov: 45 }}
-      dpr={[1, 2]}
-      style={{ width: '100%', height: '100%', background: 'black' }}
-      gl={{ toneMapping: THREE.NoToneMapping, antialias: true }}
-      frameloop="demand"
-    >
-      <FrameCapper fps={60} />
-      <CameraControls
-        ref={controlsRef}
-        minPolarAngle={Math.PI * 0.15}
-        maxPolarAngle={Math.PI * 0.52}
-        minAzimuthAngle={0}
-        maxAzimuthAngle={Math.PI * 0.50}
-        minDistance={5}
-        maxDistance={55}
-        dollyToCursor
-        truckSpeed={.8}
-        dampingFactor={0.08}
-      />
-      <Stars radius={80} depth={60} count={4000} factor={3} saturation={0} fade speed={0.5} />
-      <Clouds material={CloudMaterial} limit={10}>
-        <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
-      </Clouds>
-      <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
-      <CameraIntro cameraActiveRef={cameraActiveRef} controlsRef={controlsRef} onDone={onCameraAnimDone} />
-      <JoystickCameraDriver joystickRef={joystickRef} controlsRef={controlsRef} />
-    </Canvas>
-  )
-})
 
 type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'about' | null
 
@@ -163,8 +22,27 @@ export default function Scene() {
   const [hudVisible, setHudVisible]       = useState(false)
   const [hudView, setHudView]             = useState<HUDView>(null)
   const [wipVisible, setWipVisible]       = useState(true)
+  const squeeze = (el: EventTarget) =>
+    gsap.fromTo(el as HTMLElement, { scale: 0.88 }, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' })
+
   const cameraActiveRef = useRef(false)
+  const cameraResetRef  = useRef<(() => void) | null>(null)
   const joystickRef     = useRef({ x: 0, y: 0 })
+  const wipRef          = useRef<HTMLDivElement>(null)
+  const controlsRef     = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (showLoading || !wipRef.current) return
+    gsap.fromTo(wipRef.current, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out', delay: 0.2 })
+  }, [showLoading])
+
+  useEffect(() => {
+    if (!hudVisible || !controlsRef.current) return
+    gsap.fromTo(controlsRef.current.children,
+      { x: 20, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.4, ease: 'power3.out', stagger: 0.08, delay: 0.1 }
+    )
+  }, [hudVisible])
 
   const handleLoaded         = useCallback(() => setIsLoaded(true), [])
   const handleDishClick      = useCallback(() => setHudView('contact'), [])
@@ -194,6 +72,7 @@ export default function Scene() {
         onLinkedinClick={handleLinkedinClick}
         onCameraAnimDone={handleCameraAnimDone}
         cameraActiveRef={cameraActiveRef}
+        cameraResetRef={cameraResetRef}
       />
 
       {showLoading && (
@@ -213,34 +92,38 @@ export default function Scene() {
             </div>
           </div>
         )}
-        <ComputerHUD visible={hudVisible} content={hudContent} />
+        <div className="scene-terminal-row">
+          <ComputerHUD
+            visible={hudVisible}
+            content={hudContent}
+            lightsOn={lightsOn}
+            onReset={() => cameraResetRef.current?.()}
+            onToggleLights={() => setLightsOn(p => !p)}
+          />
+          {hudVisible && (
+            <div className="scene-hint">
+              <Mouse size={18} className="scene-hint-icon" />
+              <div className="scene-hint-panel">
+                <div className="scene-hint-row"><span>LEFT DRAG</span><span>ROTATE</span></div>
+                <div className="scene-hint-row"><span>RIGHT DRAG</span><span>PAN</span></div>
+                <div className="scene-hint-row"><span>SCROLL</span><span>ZOOM</span></div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {wipVisible && !showLoading && (
-        <div className="scene-wip-badge">
-          ⚠ WORK IN PROGRESS. The website is not finished yet, so if you see things that feel incomplete, its because they are, thank you!
+        <div ref={wipRef} className="scene-wip-badge">
+          ⚠ WORK IN PROGRESS. The website is not finished yet, sounds and rocket physics to be implemented. Thank you!
           <button className="scene-wip-close" onClick={() => setWipVisible(false)}>✕</button>
         </div>
       )}
 
       {hudVisible && (
-        <div className="scene-controls">
-          <div className="scene-hint">
-            <Mouse size={18} className="scene-hint-icon" />
-            <div className="scene-hint-panel">
-              <div className="scene-hint-row"><span>LEFT DRAG</span><span>ROTATE</span></div>
-              <div className="scene-hint-row"><span>RIGHT DRAG</span><span>PAN</span></div>
-              <div className="scene-hint-row"><span>SCROLL</span><span>ZOOM</span></div>
-            </div>
-          </div>
-          <button className="crt-btn" onClick={() => setHudView(v => v === 'about' ? null : 'about')}>
+        <div ref={controlsRef} className="scene-controls">
+          <button className="crt-btn" onClick={e => { squeeze(e.currentTarget); setHudView(v => v === 'about' ? null : 'about') }}>
             ABOUT
-          </button>
-          <button
-            className={`scene-light-btn ${lightsOn ? 'scene-light-btn-on' : 'scene-light-btn-off'}`}
-            onClick={() => setLightsOn(p => !p)}
-          >
-            {lightsOn ? <LightbulbOff size={32} /> : <Lightbulb size={32} />}
           </button>
         </div>
       )}

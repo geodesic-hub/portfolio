@@ -47,7 +47,7 @@ export default function Smoke({ position }: { position: [number, number, number]
 
   return (
     <points ref={pointsRef} position={position} geometry={geometry}>
-      <pointsMaterial size={0.02} color="white" transparent opacity={0.4} depthWrite={false} />
+      <pointsMaterial size={0.06} color="white" transparent opacity={0.4} depthWrite={false} />
     </points>
   )
 }

@@ -2,11 +2,10 @@ import { useGLTF } from '@react-three/drei'
 import Smoke from './Smoke'
 import { useFrame, useThree } from '@react-three/fiber'
 import type { ThreeEvent } from '@react-three/fiber'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-
-type TextureKey = 't1' | 't2' | 't3' | 't4' | 't5'
-type TextureSet = Record<TextureKey, THREE.Texture>
+import gsap from 'gsap'
+import { useRoomTextures } from './hooks/useRoomTextures'
 
 interface RoomProps {
   lightsOn: boolean
@@ -17,45 +16,83 @@ interface RoomProps {
   onLinkedinClick: () => void
 }
 
-const SCALE_NORMAL        = new THREE.Vector3(1, 1, 1)
-const SCALE_HOVER         = new THREE.Vector3(2, 2, 2)
-const SCALE_HOVER_SKETCH  = new THREE.Vector3(1.4, 1.4, 1.4)
-
 function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, onLinkedinClick }: RoomProps) {
   const { scene } = useGLTF('/model/room.glb')
-  const { gl } = useThree()
+  const { invalidate } = useThree()
 
-  const groupRef           = useRef<THREE.Group>(null)
-  const texturesRef        = useRef<{ on: TextureSet; off: TextureSet } | null>(null)
-  const meshTextureKeysRef = useRef<Map<THREE.Mesh, TextureKey>>(new Map())
-  const dishRef            = useRef<THREE.Mesh | null>(null)
-  const dishStandRef       = useRef<THREE.Mesh | null>(null)
-  const coolerRef          = useRef<THREE.Mesh | null>(null)
-  const sketchRef          = useRef<THREE.Mesh | null>(null)
-  const githubRef          = useRef<THREE.Mesh | null>(null)
-  const linkedinRef        = useRef<THREE.Mesh | null>(null)
-  const dishHovered        = useRef(false)
-  const coolerHovered      = useRef(false)
-  const sketchHovered      = useRef(false)
-  const githubHovered      = useRef(false)
-  const linkedinHovered    = useRef(false)
-  const [smokePos, setSmokePos] = useState<[number, number, number] | null>(null)
+  const {
+    groupRef,
+    smokePos,
+    meshesReady,
+    dishRef,
+    dishStandRef,
+    coolerRef,
+    sketchRef,
+    sketchBaseRef,
+    githubRef,
+    linkedinRef,
+    photoRef,
+    frameRef,
+  } = useRoomTextures({ scene, lightsOn, onLoaded })
 
+  const dishHovered     = useRef(false)
+  const sketchHovered   = useRef(false)
+  const githubHovered   = useRef(false)
+  const linkedinHovered = useRef(false)
+  const photoHovered    = useRef(false)
+
+  // Pulse all clickable meshes every 10 seconds once loaded
+  useEffect(() => {
+    if (!meshesReady) return
+
+    const pop = (mesh: THREE.Mesh | null, max: number, delay = 0) => {
+      if (!mesh) return
+      gsap.to(mesh.scale, {
+        x: max, y: max, z: max, duration: 0.3, ease: 'back.out(2)', delay, overwrite: true, onUpdate: invalidate,
+        onComplete: () => gsap.to(mesh.scale, { x: 1, y: 1, z: 1, duration: 0.3, ease: 'power2.in', delay: 0.1, onUpdate: invalidate }),
+      })
+    }
+
+    const r = () => Math.random() * 1.2
+
+    const pulse = () => {
+      const dishDelay   = r()
+      const sketchDelay = r()
+      const photoDelay  = r()
+      pop(dishRef.current,       1.3,  dishDelay)
+      pop(dishStandRef.current,  1.5,  dishDelay)
+      pop(sketchRef.current,     1.3,  sketchDelay)
+      pop(sketchBaseRef.current, 1.3,  sketchDelay)
+      pop(photoRef.current,      1.15, photoDelay)
+      pop(frameRef.current,      1.15, photoDelay)
+      pop(githubRef.current,     1.5,  r())
+      pop(linkedinRef.current,   1.5,  r())
+    }
+
+    pulse()
+    const id = setInterval(pulse, 10000)
+    return () => clearInterval(id)
+  }, [meshesReady])
+
+  // Hover scale + dish/cooler rotation
   useFrame((state, delta) => {
+    const hoverScale = (mesh: THREE.Mesh, s: number, ease: string) =>
+      gsap.to(mesh.scale, { x: s, y: s, z: s, duration: 0.25, ease, overwrite: true, onUpdate: invalidate })
+
     if (dishRef.current) {
       dishRef.current.rotation.y += delta * 0.8
       const hit = state.raycaster.intersectObject(dishRef.current, false).length > 0
       if (hit !== dishHovered.current) {
         dishHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
+        const s = hit ? 1.2 : 1; const ease = hit ? 'power2.out' : 'power2.in'
+        hoverScale(dishRef.current, s, ease)
+        if (dishStandRef.current) hoverScale(dishStandRef.current, s, ease)
       }
-      dishRef.current.scale.lerp(hit ? SCALE_HOVER : SCALE_NORMAL, delta * 6)
-      dishStandRef.current?.scale.lerp(hit ? SCALE_HOVER : SCALE_NORMAL, delta * 6)
     }
 
     if (coolerRef.current) {
       coolerRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.8) * (Math.PI / 4)
-      coolerRef.current.scale.lerp(coolerHovered.current ? SCALE_HOVER : SCALE_NORMAL, delta * 6)
     }
 
     if (sketchRef.current) {
@@ -63,8 +100,21 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
       if (hit !== sketchHovered.current) {
         sketchHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
+        const s = hit ? 1.15 : 1; const ease = hit ? 'power2.out' : 'power2.in'
+        hoverScale(sketchRef.current, s, ease)
+        if (sketchBaseRef.current) hoverScale(sketchBaseRef.current, s, ease)
       }
-      sketchRef.current.scale.lerp(hit ? SCALE_HOVER_SKETCH : SCALE_NORMAL, delta * 6)
+    }
+
+    if (photoRef.current) {
+      const hit = state.raycaster.intersectObject(photoRef.current, false).length > 0
+      if (hit !== photoHovered.current) {
+        photoHovered.current = hit
+        document.body.style.cursor = hit ? 'pointer' : 'auto'
+        const s = hit ? 1.15 : 1; const ease = hit ? 'power2.out' : 'power2.in'
+        hoverScale(photoRef.current, s, ease)
+        if (frameRef.current) hoverScale(frameRef.current, s, ease)
+      }
     }
 
     if (githubRef.current) {
@@ -72,8 +122,8 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
       if (hit !== githubHovered.current) {
         githubHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
+        hoverScale(githubRef.current, hit ? 1.2 : 1, hit ? 'power2.out' : 'power2.in')
       }
-      githubRef.current.scale.lerp(hit ? SCALE_HOVER_SKETCH : SCALE_NORMAL, delta * 6)
     }
 
     if (linkedinRef.current) {
@@ -81,90 +131,10 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
       if (hit !== linkedinHovered.current) {
         linkedinHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
+        hoverScale(linkedinRef.current, hit ? 1.2 : 1, hit ? 'power2.out' : 'power2.in')
       }
-      linkedinRef.current.scale.lerp(hit ? SCALE_HOVER_SKETCH : SCALE_NORMAL, delta * 6)
     }
   })
-
-  useEffect(() => {
-    const loader = new THREE.TextureLoader()
-    const keys: TextureKey[] = ['t1', 't2', 't3', 't4', 't5']
-
-    const configure = (t: THREE.Texture) => {
-      t.flipY = false
-      t.colorSpace = THREE.SRGBColorSpace
-      t.generateMipmaps = true
-      t.minFilter = THREE.LinearMipmapLinearFilter
-      t.anisotropy = gl.capabilities.getMaxAnisotropy()
-      gl.initTexture(t)
-      return t
-    }
-
-    const loads = keys.flatMap(k => [
-      loader.loadAsync(`/textures/${k}-on.webp`).then(configure),
-      loader.loadAsync(`/textures/${k}-off.webp`).then(configure),
-    ])
-    const naturoLoad   = loader.loadAsync('/sketches/naturo.webp').then(configure)
-
-    Promise.all([...loads, naturoLoad]).then(results => {
-      const on  = {} as TextureSet
-      const off = {} as TextureSet
-      keys.forEach((k, i) => {
-        on[k]  = results[i * 2]
-        off[k] = results[i * 2 + 1]
-      })
-      const naturoTex = results[results.length - 1]
-
-      texturesRef.current = { on, off }
-      const activeSet = lightsOn ? on : off
-
-      scene.traverse((child) => {
-        if (!(child instanceof THREE.Mesh)) return
-
-        if (child.name === 'inc_target_t3' && groupRef.current) {
-          const worldPos = child.getWorldPosition(new THREE.Vector3())
-          groupRef.current.worldToLocal(worldPos)
-          setSmokePos([worldPos.x, worldPos.y + 0.50, worldPos.z])
-        }
-
-        if (child.name === 'dish_target_t1')     dishRef.current     = child
-        if (child.name === 'dish_stand_target_t1') dishStandRef.current = child
-        if (child.name === 'cooler_target_t1')   coolerRef.current   = child
-        if (child.name === 'git_target_t1')   githubRef.current   = child
-        if (child.name === 'linkedin_target_t1') linkedinRef.current = child
-        if (child.name === 'sketch_base_target') {
-          child.material = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.FrontSide })
-          return
-        }
-        if (child.name === 'sketch_target') {
-          sketchRef.current = child
-          child.material = new THREE.MeshBasicMaterial({ map: naturoTex, color: new THREE.Color(0.55, 0.55, 0.55), side: THREE.FrontSide })
-          return
-        }
-
-        const key = keys.find(k => child.name === k || child.name.endsWith(`_${k}`))
-
-        if (key) {
-          meshTextureKeysRef.current.set(child, key)
-          child.material = new THREE.MeshBasicMaterial({ map: activeSet[key], side: THREE.FrontSide })
-        } else {
-          child.material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide })
-        }
-      })
-
-      onLoaded()
-    })
-  }, [scene])
-
-  useEffect(() => {
-    if (!texturesRef.current) return
-    const textureSet = lightsOn ? texturesRef.current.on : texturesRef.current.off
-    meshTextureKeysRef.current.forEach((key, mesh) => {
-      if (!(mesh.material instanceof THREE.MeshBasicMaterial)) return
-      mesh.material.map = textureSet[key]
-      mesh.material.needsUpdate = true
-    })
-  }, [lightsOn])
 
   return (
     <group ref={groupRef}>
@@ -173,7 +143,7 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
         onClick={(e: ThreeEvent<MouseEvent>) => {
           if (e.object.name === 'dish_target_t1')     { e.stopPropagation(); onDishClick() }
           if (e.object.name === 'sketch_target')      { e.stopPropagation(); onSketchClick() }
-          if (e.object.name === 'git_target_t1')   { e.stopPropagation(); onGithubClick() }
+          if (e.object.name === 'git_target_t1')      { e.stopPropagation(); onGithubClick() }
           if (e.object.name === 'linkedin_target_t1') { e.stopPropagation(); onLinkedinClick() }
         }}
       />
