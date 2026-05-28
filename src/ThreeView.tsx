@@ -102,6 +102,7 @@ const ThreeView = memo(function ThreeView({
   onSketchClick,
   onGithubClick,
   onLinkedinClick,
+  onPhotoClick,
   onCameraAnimDone,
   cameraActiveRef,
   cameraResetRef,
@@ -113,6 +114,7 @@ const ThreeView = memo(function ThreeView({
   onSketchClick: () => void
   onGithubClick: () => void
   onLinkedinClick: () => void
+  onPhotoClick: () => void
   onCameraAnimDone: () => void
   cameraActiveRef: { current: boolean }
   cameraResetRef: { current: (() => void) | null }
@@ -144,7 +146,7 @@ const ThreeView = memo(function ThreeView({
       <Clouds material={CloudMaterial} limit={10}>
         <Cloud position={[1, -8, 1]} speed={0.1} opacity={0.05} color="#aaffcc" segments={20} scale={[4, 4, 4]} rotation={[0, Math.PI * 0.3, 0]} />
       </Clouds>
-      <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} />
+      <Room lightsOn={lightsOn} onLoaded={onLoaded} onDishClick={onDishClick} onSketchClick={onSketchClick} onGithubClick={onGithubClick} onLinkedinClick={onLinkedinClick} onPhotoClick={onPhotoClick} />
       <CameraIntro cameraActiveRef={cameraActiveRef} controlsRef={controlsRef} cameraResetRef={cameraResetRef} onDone={onCameraAnimDone} />
       <JoystickCameraDriver joystickRef={joystickRef} controlsRef={controlsRef} />
     </Canvas>

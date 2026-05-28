@@ -5,7 +5,7 @@ export default function LinkedinView() {
         LINKEDIN PROFILE
       </div>
       <button
-        className="crt-btn"
+        className="crt-btn-green"
         style={{ width: '100%', textAlign: 'left', fontSize: 13 }}
         onClick={() => window.open('https://www.linkedin.com/in/harshvardhan-singh-chouhan-670a75156/', '_blank')}
       >

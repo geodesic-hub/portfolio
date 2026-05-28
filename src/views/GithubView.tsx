@@ -8,14 +8,14 @@ export default function GithubView() {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <button
-          className="crt-btn"
+          className="crt-btn-green"
           style={{ width: '100%', textAlign: 'left', fontSize: 13 }}
           onClick={() => open('https://github.com/geodesic-hub?tab=repositories')}
         >
           Repo-1
         </button>
         <button
-          className="crt-btn"
+          className="crt-btn-green"
           style={{ width: '100%', textAlign: 'left', fontSize: 13 }}
           onClick={() => open('https://github.com/harsh1930?tab=repositories')}
         >

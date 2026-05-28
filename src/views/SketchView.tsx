@@ -57,7 +57,7 @@ export default function SketchView() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <button className="crt-btn" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>◀</button>
+          <button className="crt-btn-green" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === 0} onClick={() => setIdx(i => i - 1)}>◀</button>
 
           <div
             onClick={() => setLightbox(true)}
@@ -71,7 +71,7 @@ export default function SketchView() {
             />
           </div>
 
-          <button className="crt-btn" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === SKETCHES.length - 1} onClick={() => setIdx(i => i + 1)}>▶</button>
+          <button className="crt-btn-green" style={{ fontSize: 14, lineHeight: 1 }} disabled={idx === SKETCHES.length - 1} onClick={() => setIdx(i => i + 1)}>▶</button>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
@@ -92,7 +92,7 @@ export default function SketchView() {
           }}
         >
           <button
-            className="crt-btn"
+            className="crt-btn-green"
             onClick={e => { e.stopPropagation(); setLightbox(false) }}
             style={{ position: 'absolute', top: 20, right: 24, fontSize: 18, padding: '4px 12px' }}
           >
@@ -100,7 +100,7 @@ export default function SketchView() {
           </button>
 
           <button
-            className="crt-btn"
+            className="crt-btn-green"
             onClick={e => { e.stopPropagation(); setIdx(i => Math.max(i - 1, 0)) }}
             style={{ position: 'absolute', left: 24, fontSize: 22, padding: '8px 14px', opacity: idx === 0 ? 0.2 : 1 }}
             disabled={idx === 0}
@@ -117,7 +117,7 @@ export default function SketchView() {
           />
 
           <button
-            className="crt-btn"
+            className="crt-btn-green"
             onClick={e => { e.stopPropagation(); setIdx(i => Math.min(i + 1, SKETCHES.length - 1)) }}
             style={{ position: 'absolute', right: 24, fontSize: 22, padding: '8px 14px', opacity: idx === SKETCHES.length - 1 ? 0.2 : 1 }}
             disabled={idx === SKETCHES.length - 1}

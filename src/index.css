@@ -18,7 +18,7 @@ html, body, #root {
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-.crt-btn {
+.crt-btn-green {
   background: none;
   border: 1px solid rgba(0, 255, 65, 0.35);
   color: #00ff41;
@@ -32,7 +32,27 @@ html, body, #root {
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.crt-btn:hover {
+.crt-btn-green:hover {
   border-color: rgba(0, 255, 65, 0.9);
   box-shadow: 0 0 12px rgba(0, 255, 65, 0.35);
+}
+
+.crt-btn-red {
+  background: rgba(255, 30, 30, 0.15);
+  border: 1px solid rgba(255, 48, 48, 0.7);
+  color: #ff3030;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  padding: 5px 10px;
+  cursor: pointer;
+  text-shadow: 0 0 6px rgba(255, 48, 48, 0.6);
+  box-shadow: 0 0 8px rgba(255, 48, 48, 0.15);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.crt-btn-red:hover {
+  border-color: rgba(255, 48, 48, 0.95);
+  background: rgba(255, 30, 30, 0.28);
+  box-shadow: 0 0 14px rgba(255, 48, 48, 0.45);
 }

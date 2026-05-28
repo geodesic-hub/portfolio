@@ -7,6 +7,7 @@ import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import LinkedinView from './views/LinkedinView'
 import AboutView from './views/AboutView'
+import FamilyView from './views/FamilyView'
 import { Mouse } from 'lucide-react'
 import Joystick from './Joystick'
 import ThreeView from './ThreeView'
@@ -14,7 +15,7 @@ import { useAudio } from './hooks/useAudio'
 import gsap from 'gsap'
 import './Scene.css'
 
-type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'linkedin' | 'about' | null
+type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'linkedin' | 'about' | 'family' | null
 
 export default function Scene() {
   const { playLoading, fadeOutLoading, startAmbient, muted, toggleMute } = useAudio()
@@ -53,6 +54,7 @@ export default function Scene() {
   const handleSketchClick    = useCallback(() => setHudView('sketch'), [])
   const handleGithubClick    = useCallback(() => setHudView('github'), [])
   const handleLinkedinClick  = useCallback(() => setHudView('linkedin'), [])
+  const handlePhotoClick     = useCallback(() => setHudView('family'), [])
   const handleCameraAnimDone = useCallback(() => { startAmbient(); setHudVisible(true); setHudView('intro') }, [])
 
   const hudContent = useMemo(() => {
@@ -62,6 +64,7 @@ export default function Scene() {
     if (hudView === 'github')   return <GithubView />
     if (hudView === 'linkedin') return <LinkedinView />
     if (hudView === 'about')   return <AboutView />
+    if (hudView === 'family')  return <FamilyView />
     return null
   }, [hudView])
 
@@ -75,6 +78,7 @@ export default function Scene() {
         onSketchClick={handleSketchClick}
         onGithubClick={handleGithubClick}
         onLinkedinClick={handleLinkedinClick}
+        onPhotoClick={handlePhotoClick}
         onCameraAnimDone={handleCameraAnimDone}
         cameraActiveRef={cameraActiveRef}
         cameraResetRef={cameraResetRef}
@@ -130,7 +134,7 @@ export default function Scene() {
 
       {hudVisible && (
         <div ref={controlsRef} className="scene-controls">
-          <button className="crt-btn" onClick={e => { squeeze(e.currentTarget); setHudView(v => v === 'about' ? null : 'about') }}>
+          <button className="crt-btn-green" onClick={e => { squeeze(e.currentTarget); setHudView(v => v === 'about' ? null : 'about') }}>
             ABOUT
           </button>
         </div>

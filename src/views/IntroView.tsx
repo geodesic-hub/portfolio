@@ -5,7 +5,8 @@ const SCRIPT = [
   { text: 'You must be here to visit Harsh.',                                           pauseBefore: 700, speed: 35 },
   { text: 'Sorry, he got lost in another dimension and left me to guide visitors.',    pauseBefore: 800, speed: 30 },
   { text: 'He has also left clues for communication, in case you are trying to reach him.', pauseBefore: 200, speed: 30 },
-  { text: 'Since you are in a higher dimension than me, please click on things - the information will be transmitted to you.', pauseBefore: 200, speed: 28 },
+  { text: 'Since you are in a higher dimension than me, objects that are clickable will change size periodically.', pauseBefore: 200, speed: 28 },
+  { text: 'Please click on them to find out about Harsh', pauseBefore: 200, speed: 28 },
 ]
 
 export default function IntroView({ onDone }: { onDone: () => void }) {
@@ -41,11 +42,11 @@ export default function IntroView({ onDone }: { onDone: () => void }) {
 
         {done && (
           <button
-            className="crt-btn"
+            className="crt-btn-red"
             onClick={onDone}
             style={{ marginTop: 10, display: 'block', marginLeft: 'auto' }}
           >
-            [ UNDERSTOOD ]
+            UNDERSTOOD
           </button>
         )}
       </div>

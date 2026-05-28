@@ -7,7 +7,7 @@ const MESSAGES = [
   "ERROR: ROOM NOT FOUND AT EXPECTED COORDINATES",
   "ANOMALY DETECTED - SPACE-TIME DISPLACEMENT EVENT",
   "THE ROOM HAS BEEN TELEPORTED TO A POCKET DIMENSION",
-  "INITIATING COORDINATE RELOCATION SEQUENCE...",
+  "TO INITIATE COORDINATE RELOCATION SEQUENCE CLICK ON INITIATE",
 ]
 
 const FINAL = {
@@ -37,15 +37,15 @@ interface Props { isLoaded: boolean; onFadeStart: () => void; onHide: () => void
 
 export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }: Props) {
   const [msgStep, setMsgStep] = useState(0)
-  const [phase, setPhase]     = useState<Phase>('waiting')
-  const [coords, setCoords]   = useState({ x: randCoord(), y: randCoord(), z: randCoord() })
-  const [status, setStatus]   = useState({ signal: 0.4, stability: 0.75, anomaly: 0.95 })
+  const [phase, setPhase] = useState<Phase>('waiting')
+  const [coords, setCoords] = useState({ x: randCoord(), y: randCoord(), z: randCoord() })
+  const [status, setStatus] = useState({ signal: 0.4, stability: 0.75, anomaly: 0.95 })
 
-  const overlayRef    = useRef<HTMLDivElement>(null)
-  const headerRef     = useRef<HTMLDivElement>(null)
-  const topRowRef     = useRef<HTMLDivElement>(null)
-  const statusRef     = useRef<HTMLDivElement>(null)
-  const startedAtRef  = useRef(0)
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLDivElement>(null)
+  const topRowRef = useRef<HTMLDivElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
+  const startedAtRef = useRef(0)
 
   // Messages animate during 'waiting'; transition to 'searching' is scheduled on click
   useEffect(() => {
@@ -70,9 +70,9 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
   useEffect(() => {
     const next: Partial<Record<Phase, [Phase, number]>> = {
       searching: ['lockX', 3500],
-      lockX:     ['lockY', 2000],
-      lockY:     ['lockZ', 2000],
-      lockZ:     ['locked', 2000],
+      lockX: ['lockY', 2000],
+      lockY: ['lockZ', 2000],
+      lockZ: ['locked', 2000],
     }
     const entry = next[phase]
     if (!entry) return
@@ -101,9 +101,9 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
         setStatus({ signal: 1, stability: 0.15, anomaly: 0 })
       } else if (phase !== 'messages' && phase !== 'waiting') {
         setStatus({
-          signal:    0.2 + Math.random() * 0.6,
+          signal: 0.2 + Math.random() * 0.6,
           stability: 0.1 + Math.random() * 0.5,
-          anomaly:   0.5 + Math.random() * 0.5,
+          anomaly: 0.5 + Math.random() * 0.5,
         })
       }
     }, 350)
@@ -116,15 +116,15 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
       onFadeStart()
 
       const tl = gsap.timeline({ onComplete: onHide })
-      tl.to(statusRef.current,  { y: 16, opacity: 0, duration: 0.3, ease: 'power2.in' })
-      tl.to(topRowRef.current,  { y: -16, opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.15')
-      tl.to(headerRef.current,  { opacity: 0, duration: 0.2, ease: 'power1.in' }, '-=0.1')
+      tl.to(statusRef.current, { y: 16, opacity: 0, duration: 0.3, ease: 'power2.in' })
+      tl.to(topRowRef.current, { y: -16, opacity: 0, duration: 0.3, ease: 'power2.in' }, '-=0.15')
+      tl.to(headerRef.current, { opacity: 0, duration: 0.2, ease: 'power1.in' }, '-=0.1')
       tl.to(overlayRef.current, { opacity: 0, duration: 0.35, ease: 'power1.in' }, '-=0.05')
     }, 1500)
     return () => clearTimeout(t)
   }, [isLoaded, phase])
 
-  const isWaiting  = phase === 'waiting'
+  const isWaiting = phase === 'waiting'
   const showCoords = !isWaiting && phase !== 'messages'
   const xLocked = ['lockX', 'lockY', 'lockZ', 'locked'].includes(phase)
   const yLocked = ['lockY', 'lockZ', 'locked'].includes(phase)
@@ -152,8 +152,8 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
             ))}
             {isWaiting && msgStep === MESSAGES.length - 1 && (
               <div className="ls-cta">
-                <button className="crt-btn" onClick={() => { onStart?.(); setPhase('messages') }}>
-                  [ INITIATE COORDINATE RELOCATION SEQUENCE ]
+                <button className="crt-btn-red" onClick={() => { onStart?.(); setPhase('messages') }}>
+                  INITIATE
                 </button>
               </div>
             )}
@@ -192,9 +192,9 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
             <div className="ls-panel-title">SYSTEM STATUS</div>
             <div className="ls-status-row">
               {[
-                ['SIGNAL INTEGRITY',      status.signal],
+                ['SIGNAL INTEGRITY', status.signal],
                 ['DIMENSIONAL STABILITY', status.stability],
-                ['ANOMALY STRENGTH',      status.anomaly],
+                ['ANOMALY STRENGTH', status.anomaly],
               ].map(([label, val]) => (
                 <div key={label as string} className="ls-status-col">
                   <div className="ls-status-label">{label as string}</div>

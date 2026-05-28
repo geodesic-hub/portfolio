@@ -14,9 +14,10 @@ interface RoomProps {
   onSketchClick: () => void
   onGithubClick: () => void
   onLinkedinClick: () => void
+  onPhotoClick: () => void
 }
 
-function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, onLinkedinClick }: RoomProps) {
+function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, onLinkedinClick, onPhotoClick }: RoomProps) {
   const { scene } = useGLTF('/model/room.glb')
   const { invalidate } = useThree()
 
@@ -145,6 +146,7 @@ function Room({ lightsOn, onLoaded, onDishClick, onSketchClick, onGithubClick, o
           if (e.object.name === 'sketch_target')      { e.stopPropagation(); onSketchClick() }
           if (e.object.name === 'git_target_t1')      { e.stopPropagation(); onGithubClick() }
           if (e.object.name === 'linkedin_target_t1') { e.stopPropagation(); onLinkedinClick() }
+          if (e.object.name === 'photo_target')       { e.stopPropagation(); onPhotoClick() }
         }}
       />
       {smokePos && <Smoke position={smokePos} />}
