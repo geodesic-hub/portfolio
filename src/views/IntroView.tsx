@@ -6,7 +6,7 @@ const SCRIPT = [
   { text: 'Sorry, he got lost in another dimension and left me to guide visitors.',    pauseBefore: 800, speed: 30 },
   { text: 'He has also left clues for communication, in case you are trying to reach him.', pauseBefore: 200, speed: 30 },
   { text: 'Since you are in a higher dimension than me, objects that are clickable will change size periodically.', pauseBefore: 200, speed: 28 },
-  { text: 'Please click on them to find out about Harsh', pauseBefore: 200, speed: 28 },
+  { text: 'Please click on them to find out about Harsh!', pauseBefore: 200, speed: 28 },
 ]
 
 export default function IntroView({ onDone }: { onDone: () => void }) {
