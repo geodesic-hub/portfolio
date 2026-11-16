@@ -22,7 +22,7 @@ export default function AboutView() {
           </div>
         ))}
       </div>
-      <div style={{ fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13, lineHeight: 1.75, maxHeight: 320, overflowY: 'auto', paddingRight: 4 }}>
+      <div style={{ fontFamily: '"Segoe UI", system-ui, sans-serif', display: 'flex', flexDirection: 'column', gap: 12, fontSize: 13, lineHeight: 1.75 }}>
         <p style={{ margin: 0 }}>
           I'm a software and data engineer who enjoys building things at the intersection of technology, creativity, and human experience. Over the years, I've worked across modern web platforms, cloud systems, microservices, AI-assisted development workflows, and large-scale enterprise applications using technologies like Angular, .NET Core, React, Docker, Kubernetes, and SQL.
         </p>

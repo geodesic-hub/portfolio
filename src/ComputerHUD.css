@@ -158,6 +158,14 @@
 .crt-content {
   padding: 16px 16px 12px;
   min-height: 110px;
+  /* never taller than the space left on screen: long views scroll inside the terminal instead of running off the top */
+  max-height: max(160px, calc(100vh - 200px));
+  max-height: max(160px, calc(100dvh - 200px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 230, 255, 0.35) transparent;
   color: var(--color-text);
   text-shadow: 0 0 8px rgba(127, 230, 255, 0.25);
   position: relative;
@@ -175,6 +183,14 @@
   letter-spacing: 3px;
   opacity: 0.6;
   margin-bottom: 12px;
+}
+
+/* phones: leave room for OPEN POD (top), the joystick and the link bar (bottom) */
+@media (max-width: 900px) {
+  .crt-content {
+    max-height: max(160px, calc(100vh - 360px));
+    max-height: max(160px, calc(100dvh - 360px));
+  }
 }
 
 /* ── Footer ────────────────────────────────────────────────── */
