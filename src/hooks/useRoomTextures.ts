@@ -149,6 +149,32 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
         }
         if (child.name === 'photo_target') {
           photoRef.current = child
+          // the quad's exported UVs point at a tiny, sideways window of the bake atlas:
+          // rebuild them from the quad's geometry so the whole photo shows upright (top of the photo = up)
+          const uv = child.geometry.attributes.uv as THREE.BufferAttribute | undefined
+          const pos = child.geometry.attributes.position as THREE.BufferAttribute
+          if (uv && pos.count >= 3 && !child.userData.uvFixed) {
+            const P = (i: number) => new THREE.Vector3().fromBufferAttribute(pos, i)
+            const idx = child.geometry.index
+            const [i0, i1, i2] = idx ? [idx.getX(0), idx.getX(1), idx.getX(2)] : [0, 1, 2]
+            const a = P(i0), n = P(i1).sub(a).cross(P(i2).sub(a)).normalize() // visible side (local space)
+            child.updateWorldMatrix(true, false)
+            const worldUp = new THREE.Vector3(0, 1, 0).transformDirection(child.matrixWorld.clone().invert())
+            const up = worldUp.sub(n.clone().multiplyScalar(worldUp.dot(n))).normalize()
+            const right = new THREE.Vector3().crossVectors(up, n).normalize()
+            let r0 = Infinity, r1 = -Infinity, u0 = Infinity, u1 = -Infinity
+            for (let i = 0; i < pos.count; i++) {
+              const q = P(i), x = q.dot(right), y = q.dot(up)
+              r0 = Math.min(r0, x); r1 = Math.max(r1, x); u0 = Math.min(u0, y); u1 = Math.max(u1, y)
+            }
+            for (let i = 0; i < pos.count; i++) {
+              const q = P(i)
+              // flipY is off for these textures, so v = 0 is the top row of the image
+              uv.setXY(i, (q.dot(right) - r0) / (r1 - r0), (u1 - q.dot(up)) / (u1 - u0))
+            }
+            uv.needsUpdate = true
+            child.userData.uvFixed = true
+          }
           child.material = new THREE.MeshBasicMaterial({ map: familyTex, side: THREE.FrontSide })
           return
         }
