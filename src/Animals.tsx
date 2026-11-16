@@ -132,8 +132,8 @@ function Turtle({ scene, shadowTex }: { scene: THREE.Object3D; shadowTex: THREE.
 // Satellite: slow orbit around the pod, above the tree and the dome
 // ---------------------------------------------------------------------------
 const SAT_CENTER = new THREE.Vector3(-0.18, 0, -0.02) // pod centre (three.js coords)
-const SAT_RADIUS = 10
-const SAT_HEIGHT = 11.5
+const SAT_RADIUS = 12
+const SAT_HEIGHT = 14.5  // above the tree canopy (top ~11.5)
 const SAT_BOB = 0.8          // gentle up/down over one lap (tilted orbit)
 const SAT_SPEED = 0.12       // radians / second (~52 s per lap)
 

@@ -7,7 +7,7 @@ const NATURE_VOL = 0.45
  * Wind while the camera flies in, then nature ambience once it has landed.
  *
  * Both tracks are streamed <audio> elements routed through Web Audio gain nodes:
- * - streaming keeps memory low (the nature track is 10 minutes long),
+ * - streaming keeps memory low (the nature track is 13 minutes long),
  * - gain nodes fade smoothly everywhere (iOS ignores <audio>.volume, so element fades jump straight to full),
  * - one audio path for both tracks, so they behave the same on every phone.
  */
@@ -28,7 +28,9 @@ export function useAudio() {
       return { el, gain: null as GainNode | null }
     }
     windRef.current   = make('/music/wind.mp3', 'auto')
-    natureRef.current = make('/music/nature.mp3', 'metadata')
+    // the wind clip has its own swell and dies away by ~18 s, about when the flight lands: play it once, never loop
+    windRef.current.el.loop = false
+    natureRef.current = make('/music/nature2.mp3', 'metadata')
     return () => {
       for (const t of [windRef.current, natureRef.current]) { t?.el.pause(); t?.el.removeAttribute('src'); t?.el.load() }
       ctxRef.current?.close()
