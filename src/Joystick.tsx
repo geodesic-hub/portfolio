@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import './Joystick.css'
 
 interface JoystickProps {
@@ -12,6 +12,8 @@ export default function Joystick({ deltaRef }: JoystickProps) {
   const knobRef      = useRef<HTMLDivElement>(null)
   const activeTouchId = useRef<number | null>(null)
   const origin       = useRef({ x: 0, y: 0 })
+  // the knob drifts in a small circle until the first touch, so it reads as "drag me", not as arrow buttons
+  const [hint, setHint] = useState(true)
 
   const applyDelta = useCallback((dx: number, dy: number) => {
     const dist  = Math.sqrt(dx * dx + dy * dy)
@@ -38,6 +40,7 @@ export default function Joystick({ deltaRef }: JoystickProps) {
       if (activeTouchId.current !== null) return
       const t = e.changedTouches[0]
       activeTouchId.current = t.identifier
+      setHint(false)
       const rect = el.getBoundingClientRect()
       origin.current = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
     }
@@ -76,12 +79,11 @@ export default function Joystick({ deltaRef }: JoystickProps) {
   }, [applyDelta, reset])
 
   return (
-    <div ref={outerRef} className="joystick-outer">
-      <span className="joystick-tick joystick-tick-n">▲</span>
-      <span className="joystick-tick joystick-tick-s">▼</span>
-      <span className="joystick-tick joystick-tick-e">▶</span>
-      <span className="joystick-tick joystick-tick-w">◀</span>
-      <div ref={knobRef} className="joystick-knob" />
+    <div ref={outerRef} className={`joystick-outer${hint ? ' joystick--hint' : ''}`}>
+      <div className="joystick-cross" />
+      <div ref={knobRef} className="joystick-knob">
+        <div className="joystick-grip" />
+      </div>
     </div>
   )
 }

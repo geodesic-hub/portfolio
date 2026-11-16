@@ -98,7 +98,7 @@ export default function Scene() {
           <div className="scene-joystick-row">
             <div className="scene-joystick">
               <Joystick deltaRef={joystickRef} />
-              <div className="scene-joystick-label">PAN</div>
+              <div className="scene-joystick-label">DRAG TO PAN</div>
             </div>
           </div>
         )}
