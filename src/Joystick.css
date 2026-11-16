@@ -2,11 +2,11 @@
   width: 76px;
   height: 76px;
   border-radius: 50%;
-  border: 1px solid rgba(0, 255, 65, 0.35);
-  background: rgba(0, 255, 65, 0.04);
+  border: 1px solid rgba(127, 230, 255, 0.35);
+  background: rgba(127, 230, 255, 0.04);
   box-shadow:
-    0 0 24px rgba(0, 255, 65, 0.08),
-    inset 0 0 20px rgba(0, 255, 65, 0.04);
+    0 0 24px rgba(127, 230, 255, 0.08),
+    inset 0 0 20px rgba(127, 230, 255, 0.04);
   position: relative;
   touch-action: none;
   user-select: none;
@@ -20,16 +20,16 @@
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: rgba(0, 255, 65, 0.1);
-  border: 1px solid rgba(0, 255, 65, 0.6);
-  box-shadow: 0 0 12px rgba(0, 255, 65, 0.3), inset 0 0 8px rgba(0, 255, 65, 0.1);
+  background: rgba(127, 230, 255, 0.1);
+  border: 1px solid rgba(127, 230, 255, 0.6);
+  box-shadow: 0 0 12px rgba(127, 230, 255, 0.3), inset 0 0 8px rgba(127, 230, 255, 0.1);
   pointer-events: none;
 }
 
 .joystick-tick {
   position: absolute;
   font-size: 7px;
-  color: rgba(0, 255, 65, 0.3);
+  color: rgba(127, 230, 255, 0.3);
   pointer-events: none;
   line-height: 1;
 }

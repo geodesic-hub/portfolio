@@ -1,0 +1,68 @@
+/* ── Link dock: side column on desktop, bottom bar on phones ── */
+.dock { display: flex; pointer-events: auto; }
+
+.dock-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(20, 24, 70, 0.78);
+  border: 1px solid rgba(127, 230, 255, 0.45);
+  color: #f2f5f7;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  letter-spacing: 3px;
+  cursor: pointer;
+  text-shadow: 0 0 8px rgba(127, 230, 255, 0.5);
+  box-shadow: 0 0 10px rgba(127, 230, 255, 0.1), inset 0 0 8px rgba(127, 230, 255, 0.04);
+  backdrop-filter: blur(4px);
+  transition: background 0.12s, box-shadow 0.12s, color 0.12s;
+}
+.dock-btn:hover {
+  background: rgba(127, 230, 255, 0.12);
+  box-shadow: 0 0 18px rgba(127, 230, 255, 0.3), inset 0 0 12px rgba(127, 230, 255, 0.08);
+}
+.dock-btn--active {
+  background: #7fe6ff;
+  color: #070a1f;
+  text-shadow: none;
+  box-shadow: 0 0 22px rgba(127, 230, 255, 0.55);
+}
+.dock-icon { display: flex; color: #7fe6ff; }
+.dock-btn--active .dock-icon { color: #070a1f; }
+
+/* desktop: column under the OPEN POD button */
+.dock--side {
+  flex-direction: column;
+  gap: 10px;
+}
+.dock--side .dock-btn {
+  min-width: 168px;
+  padding: 10px 16px;
+  font-size: 12px;
+}
+
+/* phone: full-width bottom bar with thumb-sized targets */
+.dock--bar {
+  display: none;
+  width: 100%;
+  gap: 6px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(20, 24, 70, 0.92), rgba(42, 37, 96, 0.95));
+  border-top: 1px solid rgba(127, 230, 255, 0.3);
+}
+.dock--bar .dock-btn {
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 56px;
+  padding: 6px 2px;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+}
+.dock--bar .dock-icon svg { width: 22px; height: 22px; }
+
+@media (max-width: 900px) {
+  .dock--side { display: none; }
+  .dock--bar { display: flex; }
+}

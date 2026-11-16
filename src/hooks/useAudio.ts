@@ -1,49 +1,55 @@
 import { useEffect, useRef, useState } from 'react'
-import { Howl } from 'howler'
+import { Howl, Howler } from 'howler'
 
+const WIND_VOL   = 0.55
+const NATURE_VOL = 0.45
+
+/** Wind while the camera flies in, then nature ambience once it has landed. */
 export function useAudio() {
-  const loadingRef    = useRef<Howl | null>(null)
-  const ambientRef    = useRef<Howl | null>(null)
-  const loadingDurRef = useRef(0)
+  const windRef   = useRef<Howl | null>(null)
+  const natureRef = useRef<Howl | null>(null)
   const [muted, setMuted] = useState(false)
 
   useEffect(() => {
-    const randomStart = (dur: number) => Math.random() * dur * 0.6
-
-    loadingRef.current = new Howl({
-      src: ['/music/loading.mp3'],
-      volume: 0.6,
-      onload: () => { loadingDurRef.current = loadingRef.current!.duration() },
-      onend: () => {
-        loadingRef.current!.seek(randomStart(loadingDurRef.current))
-        loadingRef.current!.play()
-      },
-    })
-    ambientRef.current = new Howl({ src: ['/music/music1.mp3'], volume: 0, loop: true })
+    windRef.current = new Howl({ src: ['/music/wind.mp3'], volume: 0, loop: true })
+    // long track: stream it so it starts without downloading the whole file first
+    natureRef.current = new Howl({ src: ['/music/nature.mp3'], volume: 0, loop: true, html5: true, preload: 'metadata' })
     return () => {
-      loadingRef.current?.unload()
-      ambientRef.current?.unload()
+      windRef.current?.unload()
+      natureRef.current?.unload()
     }
   }, [])
 
-  const playLoading = () => {
-    const howl = loadingRef.current
-    if (!howl) return
-    howl.once('play', () => {
-      const dur = loadingDurRef.current || howl.duration()
-      if (dur > 0) howl.seek(Math.random() * dur * 0.6)
-    })
-    howl.play()
+  // called from the ASCEND click (a user gesture, so the browser lets audio start)
+  const startWind = () => {
+    const wind = windRef.current
+    if (!wind) return
+    wind.volume(0)
+    wind.play()
+    wind.fade(0, WIND_VOL, 1200)
+    // unlock the streamed nature track inside the same gesture so it can start later without a click
+    const nature = natureRef.current
+    if (nature && !nature.playing()) {
+      nature.once('play', () => nature.pause())
+      nature.play()
+    }
   }
 
-  const fadeOutLoading = () => {
-    const loading = loadingRef.current
-    if (loading?.playing()) loading.fade(loading.volume(), 0, 1500)
-  }
-
-  const startAmbient = () => {
-    const ambient = ambientRef.current
-    if (ambient) { ambient.play(); ambient.fade(0, 0.4, 3000) }
+  // called when the camera has settled
+  const startNature = () => {
+    const wind = windRef.current
+    if (wind?.playing()) {
+      wind.fade(wind.volume(), 0, 3500)
+      wind.once('fade', () => wind.stop())
+    }
+    const nature = natureRef.current
+    if (!nature) return
+    const dur = nature.duration()
+    if (dur > 0) nature.seek(Math.random() * dur * 0.6) // vary where the ambience picks up
+    nature.volume(0)
+    // html5 audio starts asynchronously; a fade issued before it is actually playing is dropped
+    nature.once('play', () => nature.fade(0, NATURE_VOL, 4000))
+    nature.play()
   }
 
   const toggleMute = () => {
@@ -52,5 +58,5 @@ export function useAudio() {
     Howler.mute(next)
   }
 
-  return { playLoading, fadeOutLoading, startAmbient, muted, toggleMute }
+  return { startWind, startNature, muted, toggleMute }
 }

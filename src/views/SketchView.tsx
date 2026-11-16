@@ -50,7 +50,7 @@ export default function SketchView() {
 
   return (
     <>
-      <div style={{ fontFamily: '"Courier New", monospace', color: '#00ff41', textShadow: '0 0 6px rgba(0,255,65,0.5)' }}>
+      <div style={{ fontFamily: '"Courier New", monospace', color: '#f2f5f7', textShadow: '0 0 6px rgba(127,230,255,0.5)' }}>
 
         <div style={{ fontSize: 9, letterSpacing: 5, opacity: 0.5, marginBottom: 10 }}>
           SKETCH ARCHIVE - FILE {idx + 1} OF {SKETCHES.length}
@@ -61,7 +61,7 @@ export default function SketchView() {
 
           <div
             onClick={() => setLightbox(true)}
-            style={{ flex: 1, display: 'flex', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(0,255,65,0.1)', minHeight: 140, cursor: 'zoom-in' }}
+            style={{ flex: 1, display: 'flex', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(127,230,255,0.1)', minHeight: 140, cursor: 'zoom-in' }}
           >
             <img
               key={SKETCHES[idx]}
@@ -76,7 +76,7 @@ export default function SketchView() {
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
           {SKETCHES.map((_, i) => (
-            <span key={i} onClick={() => setIdx(i)} style={{ cursor: 'pointer', fontSize: 8, opacity: i === idx ? 1 : 0.25, color: '#00ff41' }}>●</span>
+            <span key={i} onClick={() => setIdx(i)} style={{ cursor: 'pointer', fontSize: 8, opacity: i === idx ? 1 : 0.25, color: '#f2f5f7' }}>●</span>
           ))}
         </div>
 
@@ -113,7 +113,7 @@ export default function SketchView() {
             src={SKETCHES[idx]}
             alt={`sketch ${idx + 1}`}
             onClick={e => e.stopPropagation()}
-            style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 0 40px rgba(0,255,65,0.15)' }}
+            style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 0 40px rgba(127,230,255,0.15)' }}
           />
 
           <button
@@ -125,7 +125,7 @@ export default function SketchView() {
             ▶
           </button>
 
-          <div style={{ position: 'absolute', bottom: 20, fontFamily: '"Courier New", monospace', fontSize: 10, letterSpacing: 4, color: '#00ff41', opacity: 0.4 }}>
+          <div style={{ position: 'absolute', bottom: 20, fontFamily: '"Courier New", monospace', fontSize: 10, letterSpacing: 4, color: '#f2f5f7', opacity: 0.4 }}>
             {idx + 1} / {SKETCHES.length} - ESC TO CLOSE
           </div>
         </div>,

@@ -2,11 +2,13 @@
 :root {
   --font-mono: "Courier New", Courier, monospace;
   --font-body: "Segoe UI", system-ui, sans-serif;
-  --color-green:        #00ff41;
-  --color-green-dim:    rgba(0, 255, 65, 0.6);
-  --color-green-faint:  rgba(0, 255, 65, 0.15);
-  --color-green-border: rgba(0, 255, 65, 0.35);
-  --color-bg:           #02040f;
+  --color-green:        #7fe6ff;
+  --color-text:         #f2f5f7;
+  --glass: linear-gradient(165deg, rgba(20, 24, 70, 0.9) 0%, rgba(42, 37, 96, 0.88) 100%);
+  --color-green-dim:    rgba(127, 230, 255, 0.6);
+  --color-green-faint:  rgba(127, 230, 255, 0.15);
+  --color-green-border: rgba(127, 230, 255, 0.35);
+  --color-bg:           #070a1f;
 }
 
 html, body, #root {
@@ -19,22 +21,22 @@ html, body, #root {
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 .crt-btn-green {
-  background: none;
-  border: 1px solid rgba(0, 255, 65, 0.35);
-  color: #00ff41;
+  background: rgba(20, 24, 70, 0.78);
+  border: 1px solid rgba(127, 230, 255, 0.45);
+  color: #f2f5f7;
   font-family: "Courier New", monospace;
   font-size: 10px;
   letter-spacing: 3px;
   padding: 5px 10px;
   cursor: pointer;
-  text-shadow: 0 0 6px rgba(0, 255, 65, 0.6);
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.1);
+  text-shadow: 0 0 6px rgba(127, 230, 255, 0.6);
+  box-shadow: 0 0 8px rgba(127, 230, 255, 0.1);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .crt-btn-green:hover {
-  border-color: rgba(0, 255, 65, 0.9);
-  box-shadow: 0 0 12px rgba(0, 255, 65, 0.35);
+  border-color: rgba(127, 230, 255, 0.9);
+  box-shadow: 0 0 12px rgba(127, 230, 255, 0.35);
 }
 
 .crt-btn-red {

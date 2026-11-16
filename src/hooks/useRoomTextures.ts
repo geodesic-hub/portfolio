@@ -2,9 +2,41 @@ import { useEffect, useRef, useState } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
+import { addWallFootprintPatch } from './wallFootprintPatch'
+import { fixCanopyClump } from './canopyClumpFix'
 
-type TextureKey = 't1' | 't2' | 't3' | 't4' | 't5'
+type TextureKey = 't1' | 't2' | 't3' | 't4' | 't6' | 't7' | 't8'
 type TextureSet = Record<TextureKey, THREE.Texture>
+
+const LIGHT_FADE_SECONDS = 0.6
+
+// Phones / tablets get 2048px KTX2 (Basis) bakes that stay compressed on the GPU
+// (~30 MB instead of ~800 MB of raw pixels); desktop keeps the 4096px WebP set.
+const IS_MOBILE = typeof window !== 'undefined' &&
+  (window.matchMedia('(pointer: coarse)').matches || Math.min(window.screen.width, window.screen.height) < 820)
+
+// MeshBasicMaterial that samples the lights-off bake (map) and the lights-on bake (mapOn)
+// and blends them with a shared uniform, so the lights fade instead of snapping.
+function makeBlendedBakeMaterial(off: THREE.Texture, on: THREE.Texture, mix: { value: number }) {
+  const mat = new THREE.MeshBasicMaterial({ map: off, side: THREE.FrontSide })
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.mapOn = { value: on }
+    shader.uniforms.uLightMix = mix
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <map_pars_fragment>', '#include <map_pars_fragment>\nuniform sampler2D mapOn;\nuniform float uLightMix;')
+      .replace(
+        '#include <map_fragment>',
+        `#ifdef USE_MAP
+          vec4 sampledDiffuseColor = mix( texture2D( map, vMapUv ), texture2D( mapOn, vMapUv ), uLightMix );
+          diffuseColor *= sampledDiffuseColor;
+        #endif`,
+      )
+  }
+  // one compiled program for every blended material
+  mat.customProgramCacheKey = () => 'blended-bake'
+  return mat
+}
 
 interface UseRoomTexturesOptions {
   scene: THREE.Group
@@ -29,13 +61,14 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
   const wallpaperIndexRef  = useRef(0)
   const photoRef           = useRef<THREE.Mesh | null>(null)
   const frameRef           = useRef<THREE.Mesh | null>(null)
+  const lightMixRef        = useRef({ value: lightsOn ? 1 : 0 })
 
   const [smokePos, setSmokePos]       = useState<[number, number, number] | null>(null)
   const [meshesReady, setMeshesReady] = useState(false)
 
   useEffect(() => {
     const loader = new THREE.TextureLoader()
-    const keys: TextureKey[] = ['t1', 't2', 't3', 't4', 't5']
+    const keys: TextureKey[] = ['t1', 't2', 't3', 't4', 't6', 't7', 't8']
 
     const configure = (t: THREE.Texture) => {
       t.flipY = false
@@ -49,10 +82,23 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
 
     const WALLPAPERS = ['jiraya', 'rengoku', 'maki', 'itachi', 'yuji']
 
-    const loads          = keys.flatMap(k => [
-      loader.loadAsync(`/textures/${k}-on.webp`).then(configure),
-      loader.loadAsync(`/textures/${k}-off.webp`).then(configure),
-    ])
+    let ktx2: KTX2Loader | null = null
+    if (IS_MOBILE) {
+      ktx2 = new KTX2Loader().setTranscoderPath('/basis/').detectSupport(gl)
+    }
+    const configureCompressed = (t: THREE.Texture) => {
+      t.flipY = false
+      t.colorSpace = THREE.SRGBColorSpace
+      t.minFilter = THREE.LinearMipmapLinearFilter
+      t.anisotropy = Math.min(4, gl.capabilities.getMaxAnisotropy())
+      gl.initTexture(t)
+      return t
+    }
+    const loadBake = (name: string) => ktx2
+      ? ktx2.loadAsync(`/textures/mobile/${name}.ktx2`).then(configureCompressed)
+      : loader.loadAsync(`/textures/${name}.webp`).then(configure)
+
+    const loads          = keys.flatMap(k => [loadBake(`${k}-on`), loadBake(`${k}-off`)])
     const naturoLoad     = loader.loadAsync('/sketches/naturo.webp').then(configure)
     const familyLoad     = loader.loadAsync('/photo/family.webp').then(configure)
     const wallpaperLoads = WALLPAPERS.map(n => loader.loadAsync(`/wallpaper/${n}.webp`).then(configure))
@@ -74,7 +120,6 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
       const wallpaperTextures = results.slice(base + 2) as THREE.Texture[]
 
       texturesRef.current = { on, off }
-      const activeSet = lightsOn ? on : off
 
       scene.traverse((child) => {
         if (!(child instanceof THREE.Mesh)) return
@@ -116,11 +161,14 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
         const key = keys.find(k => child.name === k || child.name.endsWith(`_${k}`))
         if (key) {
           meshTextureKeysRef.current.set(child, key)
-          child.material = new THREE.MeshBasicMaterial({ map: activeSet[key], side: THREE.FrontSide })
+          child.material = makeBlendedBakeMaterial(off[key], on[key], lightMixRef.current)
         } else {
           child.material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide })
         }
       })
+
+      addWallFootprintPatch(scene)
+      fixCanopyClump(scene)
 
       const CYCLE_INTERVAL = 8000
       const FADE_DURATION  = 1.0
@@ -146,20 +194,23 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
       onLoaded()
     })
 
-    return () => { cancelled = true; clearInterval(cycleId) }
+    return () => { cancelled = true; clearInterval(cycleId); ktx2?.dispose() }
   }, [scene])
 
   useEffect(() => {
     if (!texturesRef.current) return
-    const textureSet = lightsOn ? texturesRef.current.on : texturesRef.current.off
-    meshTextureKeysRef.current.forEach((key, mesh) => {
-      if (!(mesh.material instanceof THREE.MeshBasicMaterial)) return
-      mesh.material.map = textureSet[key]
-      mesh.material.needsUpdate = true
+    // fade between the two bakes (all blended materials share this one uniform)
+    gsap.to(lightMixRef.current, {
+      value: lightsOn ? 1 : 0,
+      duration: LIGHT_FADE_SECONDS,
+      ease: lightsOn ? 'power2.out' : 'power2.in',
+      overwrite: true,
+      onUpdate: invalidate,
     })
 
-    const dimColor    = lightsOn ? 1    : 0.12
-    const sketchColor = lightsOn ? 0.55 : 0.08
+    // lightsOn = night (lamps on); off = daytime, so screens only dim slightly
+    const dimColor    = lightsOn ? 1    : 0.8
+    const sketchColor = lightsOn ? 0.55 : 0.45
 
     const tint = (mesh: THREE.Mesh | null, brightness: number) => {
       if (!mesh) return
@@ -173,6 +224,7 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
   }, [lightsOn])
 
   return {
+    lightMix: lightMixRef.current,
     groupRef,
     smokePos,
     meshesReady,

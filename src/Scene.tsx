@@ -3,6 +3,7 @@ import LoadingScreen from './LoadingScreen'
 import ComputerHUD from './ComputerHUD'
 import ContactView from './views/ContactView'
 import IntroView from './views/IntroView'
+import type { IntroAction } from './views/IntroView'
 import SketchView from './views/SketchView'
 import GithubView from './views/GithubView'
 import LinkedinView from './views/LinkedinView'
@@ -11,6 +12,8 @@ import FamilyView from './views/FamilyView'
 import { Mouse } from 'lucide-react'
 import Joystick from './Joystick'
 import ThreeView from './ThreeView'
+import LinkDock from './LinkDock'
+import type { LinkView } from './LinkDock'
 import { useAudio } from './hooks/useAudio'
 import gsap from 'gsap'
 import './Scene.css'
@@ -18,28 +21,22 @@ import './Scene.css'
 type HUDView = 'intro' | 'contact' | 'sketch' | 'github' | 'linkedin' | 'about' | 'family' | null
 
 export default function Scene() {
-  const { playLoading, fadeOutLoading, startAmbient, muted, toggleMute } = useAudio()
+  const { startWind, startNature, muted, toggleMute } = useAudio()
 
   const [lightsOn, setLightsOn]           = useState(true)
+  const [podOpen, setPodOpen]             = useState(false)
   const [isLoaded, setIsLoaded]           = useState(false)
   const [showLoading, setShowLoading]     = useState(true)
   const [, setCameraStarted]              = useState(false)
   const [hudVisible, setHudVisible]       = useState(false)
   const [hudView, setHudView]             = useState<HUDView>(null)
-  const [wipVisible, setWipVisible]       = useState(true)
   const squeeze = (el: EventTarget) =>
     gsap.fromTo(el as HTMLElement, { scale: 0.88 }, { scale: 1, duration: 0.4, ease: 'elastic.out(1, 0.4)' })
 
   const cameraActiveRef = useRef(false)
   const cameraResetRef  = useRef<(() => void) | null>(null)
   const joystickRef     = useRef({ x: 0, y: 0 })
-  const wipRef          = useRef<HTMLDivElement>(null)
   const controlsRef     = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (showLoading || !wipRef.current) return
-    gsap.fromTo(wipRef.current, { x: -30, opacity: 0 }, { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out', delay: 0.2 })
-  }, [showLoading])
 
   useEffect(() => {
     if (!hudVisible || !controlsRef.current) return
@@ -50,15 +47,20 @@ export default function Scene() {
   }, [hudVisible])
 
   const handleLoaded         = useCallback(() => setIsLoaded(true), [])
-  const handleDishClick      = useCallback(() => setHudView('contact'), [])
   const handleSketchClick    = useCallback(() => setHudView('sketch'), [])
-  const handleGithubClick    = useCallback(() => setHudView('github'), [])
-  const handleLinkedinClick  = useCallback(() => setHudView('linkedin'), [])
+  const selectLink           = useCallback((v: LinkView) => setHudView(cur => (cur === v ? null : v)), [])
   const handlePhotoClick     = useCallback(() => setHudView('family'), [])
-  const handleCameraAnimDone = useCallback(() => { startAmbient(); setHudVisible(true); setHudView('intro') }, [])
+  const handleCameraAnimDone = useCallback(() => { startNature(); setHudVisible(true); setHudView('intro') }, [])
+
+  const handleIntro = useCallback((a: IntroAction) => {
+    if (a === 'about')   setHudView('about')
+    if (a === 'contact') setHudView('contact')
+    if (a === 'pod')     { setPodOpen(true); setHudView(null) }
+    if (a === 'explore') setHudView(null)
+  }, [])
 
   const hudContent = useMemo(() => {
-    if (hudView === 'intro')   return <IntroView onDone={() => setHudView(null)} />
+    if (hudView === 'intro')   return <IntroView onAction={handleIntro} />
     if (hudView === 'contact') return <ContactView />
     if (hudView === 'sketch')  return <SketchView />
     if (hudView === 'github')   return <GithubView />
@@ -66,18 +68,16 @@ export default function Scene() {
     if (hudView === 'about')   return <AboutView />
     if (hudView === 'family')  return <FamilyView />
     return null
-  }, [hudView])
+  }, [hudView, handleIntro])
 
   return (
     <div className="scene-root">
       <ThreeView
         lightsOn={lightsOn}
+        podOpen={podOpen}
         joystickRef={joystickRef}
         onLoaded={handleLoaded}
-        onDishClick={handleDishClick}
         onSketchClick={handleSketchClick}
-        onGithubClick={handleGithubClick}
-        onLinkedinClick={handleLinkedinClick}
         onPhotoClick={handlePhotoClick}
         onCameraAnimDone={handleCameraAnimDone}
         cameraActiveRef={cameraActiveRef}
@@ -87,8 +87,8 @@ export default function Scene() {
       {showLoading && (
         <LoadingScreen
           isLoaded={isLoaded}
-          onStart={playLoading}
-          onFadeStart={() => { fadeOutLoading(); cameraActiveRef.current = true; setCameraStarted(true) }}
+          onStart={startWind}
+          onFadeStart={() => { cameraActiveRef.current = true; setCameraStarted(true) }}
           onHide={() => { setShowLoading(false) }}
         />
       )}
@@ -123,20 +123,16 @@ export default function Scene() {
             </div>
           )}
         </div>
+        {hudVisible && <LinkDock variant="bar" active={hudView} onSelect={selectLink} />}
       </div>
 
-      {wipVisible && !showLoading && (
-        <div ref={wipRef} className="scene-wip-badge">
-          ⚠ WORK IN PROGRESS. The website is not finished yet, sounds and rocket physics to be implemented. Thank you!
-          <button className="scene-wip-close" onClick={() => setWipVisible(false)}>✕</button>
-        </div>
-      )}
 
       {hudVisible && (
         <div ref={controlsRef} className="scene-controls">
-          <button className="crt-btn-green" onClick={e => { squeeze(e.currentTarget); setHudView(v => v === 'about' ? null : 'about') }}>
-            ABOUT
+          <button className="crt-btn-green scene-pod-btn" onClick={e => { squeeze(e.currentTarget); setPodOpen(o => !o) }}>
+            {podOpen ? 'CLOSE POD' : 'OPEN POD'}
           </button>
+          <LinkDock variant="side" active={hudView} onSelect={selectLink} />
         </div>
       )}
 
