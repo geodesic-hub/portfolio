@@ -7,12 +7,24 @@ import './LoadingScreen.css'
 
 const TARGET_ALT = 1200 // metres shown when everything has loaded
 
+// cycled under the title so the range shows at a glance
+const CAPABILITIES = [
+  'full-stack apps',
+  'cloud data pipelines',
+  'AI & LLM tools',
+  '3D worlds in Blender',
+  'sketches & visual design',
+  'Android apps',
+]
+
 interface Props { isLoaded: boolean; onFadeStart: () => void; onHide: () => void; onStart?: () => void }
 
 export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }: Props) {
   const { progress } = useProgress()
   const [alt, setAlt] = useState(0)
   const [ready, setReady] = useState(false)
+  const [cap, setCap] = useState(0)
+  const capRef = useRef<HTMLSpanElement>(null)
   const shown = useRef(0)
   const overlayRef = useRef<HTMLDivElement>(null)
   const ctaRef = useRef<HTMLButtonElement>(null)
@@ -34,6 +46,18 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [target])
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      const el = capRef.current
+      if (!el) return
+      gsap.to(el, { opacity: 0, y: -6, duration: 0.25, ease: 'power2.in', onComplete: () => {
+        setCap(i => (i + 1) % CAPABILITIES.length)
+        gsap.fromTo(el, { opacity: 0, y: 6 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' })
+      } })
+    }, 2200)
+    return () => clearInterval(id)
+  }, [])
 
   useEffect(() => {
     if (ready && ctaRef.current)
@@ -58,7 +82,11 @@ export default function LoadingScreen({ isLoaded, onFadeStart, onHide, onStart }
       <div className="as-center">
         <div className="as-kicker">PORTFOLIO</div>
         <h1 className="as-name">HARSH</h1>
-        <div className="as-role">Full-Stack Software Engineer</div>
+        <div className="as-role">Software &amp; Data Engineer</div>
+        <div className="as-caps">
+          <span className="as-caps-lead">builds </span>
+          <span ref={capRef} className="as-caps-item">{CAPABILITIES[cap]}</span>
+        </div>
 
         <div className="as-gauge">
           <div className="as-alt">

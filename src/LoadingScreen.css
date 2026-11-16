@@ -78,6 +78,20 @@
   opacity: 0.85;
 }
 
+.as-caps {
+  margin-top: 10px;
+  font-size: clamp(12px, 2vw, 14px);
+  letter-spacing: 0.14em;
+  color: #cfe3ff;
+  min-height: 1.6em;
+}
+.as-caps-lead { opacity: 0.5; }
+.as-caps-item {
+  display: inline-block;
+  color: #7fe6ff;
+  text-shadow: 0 0 8px rgba(127, 230, 255, 0.45);
+}
+
 .as-gauge {
   margin-top: 48px;
   width: min(420px, 80vw);
