@@ -7,13 +7,14 @@ interface HUDProps {
   visible: boolean
   content: React.ReactNode
   lightsOn?: boolean
+  podOpen?: boolean
   muted?: boolean
   onReset?: () => void
   onToggleLights?: () => void
   onToggleMute?: () => void
 }
 
-export default function ComputerHUD({ visible, content, lightsOn, muted, onReset, onToggleLights, onToggleMute }: HUDProps) {
+export default function ComputerHUD({ visible, content, lightsOn, podOpen, muted, onReset, onToggleLights, onToggleMute }: HUDProps) {
   const [expanded, setExpanded]     = useState(false)
   const panelRef      = useRef<HTMLDivElement>(null)
   const screenWrapRef = useRef<HTMLDivElement>(null)
@@ -98,8 +99,12 @@ export default function ComputerHUD({ visible, content, lightsOn, muted, onReset
           <div className="crt-screen">
             <div ref={contentRef} className="crt-content" style={{ opacity: 0 }}>
               {content
-                ? <><div className="crt-transmission">&gt; INCOMING TRANSMISSION...</div>{content}</>
-                : <div className="crt-idle">AWAITING INPUT, PLEASE CLICK ON OBJECTS TO RECIEVE DATA<span className="hud-cursor">▌</span></div>
+                ? <><div className="crt-transmission">Incoming transmission</div>{content}</>
+                : <div className="crt-idle">
+                    {podOpen
+                      ? 'Click anything with a glowing marker to learn more.'
+                      : <>Click <strong style={{ color: 'var(--hud-text)' }}>OPEN POD</strong> to look inside, then click anything with a glowing marker to learn more.</>}
+                  </div>
               }
             </div>
           </div>

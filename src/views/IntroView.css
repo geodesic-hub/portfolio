@@ -2,7 +2,7 @@
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-body);
 }
 
 /* avatar: gentle idle bob, a hop when a new bubble lands */
@@ -24,10 +24,11 @@
 }
 .kurma-avatar--talk img { transform: translateY(-6px) rotate(-6deg) scale(1.06); }
 .kurma-name {
-  font-family: "Courier New", monospace;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: rgba(127, 230, 255, 0.7);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--hud-accent);
 }
 @keyframes kurma-bob {
   0%, 100% { transform: translateY(0) rotate(0deg); }
@@ -49,11 +50,11 @@
   max-width: 100%;
   padding: 8px 12px;
   border-radius: 4px 14px 14px 14px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: #f2f5f7;
-  font-size: 13.5px;
-  line-height: 1.45;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--hud-text);
+  font-size: 14.5px;
+  line-height: 1.5;
   animation: kurma-pop 0.32s cubic-bezier(0.2, 1.4, 0.4, 1) both;
   transform-origin: top left;
 }
@@ -91,24 +92,23 @@
   padding: 9px 14px;
   min-height: 40px;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.04);
-  color: #f2f5f7;
+  border: 1px solid var(--hud-accent);
+  background: rgba(127, 230, 255, 0.12);
+  color: var(--hud-text);
   font-family: inherit;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
   animation: kurma-pop 0.3s cubic-bezier(0.2, 1.4, 0.4, 1) both;
   transition: background 0.12s, color 0.12s, box-shadow 0.12s;
 }
 .kurma-reply:hover {
-  background: #f2f5f7;
-  color: #0b0f14;
-  box-shadow: 0 0 14px rgba(255, 255, 255, 0.3);
+  background: var(--hud-accent);
+  color: #0b1020;
 }
 
 @media (max-width: 540px) {
   .kurma-avatar img { width: 52px; height: 52px; }
-  .kurma-bubble { font-size: 13px; }
+  .kurma-bubble { font-size: 14px; }
   .kurma-reply { flex: 1 1 calc(50% - 8px); }
 }

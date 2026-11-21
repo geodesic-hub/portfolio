@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import type CameraControlsImpl from 'camera-controls'
 import { rocketSoundStart, rocketSoundStop } from './hooks/useAudio'
 import { rocketFlight } from './rocketFlight'
+import { clickHints } from './clickHints'
 import * as THREE from 'three'
 
 // touch screens have no hover: the pointer stays where the last tap landed, which would leave
@@ -168,7 +169,7 @@ export default function Rocket({ scene }: { scene: THREE.Object3D }) {
     puffs.forEach(p => parent.add(p.sp))
     parent.add(rig.shadow)
     rocket.userData.onClick = () => {
-      if (state.current.phase === 'idle') { state.current = { phase: 'ignite', t: 0, spawn: 0, dist: 0, shadowTick: 0 }; rocketFlight.set(true) }
+      if (state.current.phase === 'idle') { clickHints.mark('rocket'); state.current = { phase: 'ignite', t: 0, spawn: 0, dist: 0, shadowTick: 0 }; rocketFlight.set(true) }
     }
     return () => {
       delete rocket.userData.onClick

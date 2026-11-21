@@ -1,7 +1,14 @@
 
 :root {
-  --font-mono: "Courier New", Courier, monospace;
-  --font-body: "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* readable HUD theme */
+  --hud-panel:   rgba(13, 15, 36, 0.94);
+  --hud-surface: rgba(255, 255, 255, 0.07);
+  --hud-line:    rgba(255, 255, 255, 0.14);
+  --hud-text:    #f5f7fb;
+  --hud-text-2:  #c3cbdc;
+  --hud-accent:  #7fe6ff;
   --color-green:        #7fe6ff;
   --color-text:         #f2f5f7;
   --glass: linear-gradient(165deg, rgba(20, 24, 70, 0.9) 0%, rgba(42, 37, 96, 0.88) 100%);
@@ -20,41 +27,43 @@ html, body, #root {
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-.crt-btn-green {
-  background: rgba(20, 24, 70, 0.78);
-  border: 1px solid rgba(127, 230, 255, 0.45);
-  color: #f2f5f7;
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 3px;
-  padding: 5px 10px;
-  cursor: pointer;
-  text-shadow: 0 0 6px rgba(127, 230, 255, 0.6);
-  box-shadow: 0 0 8px rgba(127, 230, 255, 0.1);
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
+/* ── Shared HUD pieces ───────────────────────────────────── */
+.hud-view   { font-family: var(--font-body); color: var(--hud-text); font-size: 14px; line-height: 1.6; }
+.hud-label  { font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--hud-accent); margin-bottom: 12px; }
+.hud-muted  { color: var(--hud-text-2); }
+.hud-chip   { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--hud-surface); border: 1px solid var(--hud-line); color: var(--hud-text); white-space: nowrap; }
+.hud-frame  { display: flex; justify-content: center; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--hud-line); border-radius: 10px; padding: 6px; cursor: zoom-in; }
 
-.crt-btn-green:hover {
-  border-color: rgba(127, 230, 255, 0.9);
-  box-shadow: 0 0 12px rgba(127, 230, 255, 0.35);
+.crt-btn-green {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 8px;
+  color: var(--hud-text);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
+.crt-btn-green:hover:not(:disabled) {
+  background: var(--hud-accent);
+  border-color: var(--hud-accent);
+  color: #0b1020;
+}
+.crt-btn-green:disabled { opacity: 0.35; cursor: default; }
 
 .crt-btn-red {
-  background: rgba(255, 30, 30, 0.15);
-  border: 1px solid rgba(255, 48, 48, 0.7);
-  color: #ff3030;
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 3px;
-  padding: 5px 10px;
+  background: rgba(255, 70, 70, 0.14);
+  border: 1px solid rgba(255, 90, 90, 0.7);
+  border-radius: 8px;
+  color: #ff8a8a;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 14px;
   cursor: pointer;
-  text-shadow: 0 0 6px rgba(255, 48, 48, 0.6);
-  box-shadow: 0 0 8px rgba(255, 48, 48, 0.15);
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: background 0.15s;
 }
-
-.crt-btn-red:hover {
-  border-color: rgba(255, 48, 48, 0.95);
-  background: rgba(255, 30, 30, 0.28);
-  box-shadow: 0 0 14px rgba(255, 48, 48, 0.45);
-}
+.crt-btn-red:hover { background: rgba(255, 70, 70, 0.3); }

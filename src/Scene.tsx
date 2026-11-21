@@ -109,6 +109,7 @@ export default function Scene() {
             visible={hudVisible}
             content={hudContent}
             lightsOn={lightsOn}
+            podOpen={podOpen}
             muted={muted}
             onReset={() => cameraResetRef.current?.()}
             onToggleLights={() => setLightsOn(p => !p)}

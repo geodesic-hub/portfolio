@@ -8,6 +8,8 @@ import gsap from 'gsap'
 import { useRoomTextures } from './hooks/useRoomTextures'
 import Animals from './Animals'
 import PodReveal from './PodReveal'
+import ClickMarkers from './ClickMarkers'
+import { clickHints } from './clickHints'
 import Rocket from './Rocket'
 
 // touch screens have no hover: the pointer stays where the last tap landed, which would leave
@@ -118,8 +120,8 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
       <primitive
         object={scene}
         onClick={(e: ThreeEvent<MouseEvent>) => {
-          if (e.object.name === 'sketch_target')      { e.stopPropagation(); onSketchClick() }
-          if (e.object.name === 'photo_target')       { e.stopPropagation(); onPhotoClick() }
+          if (e.object.name === 'sketch_target')      { e.stopPropagation(); clickHints.mark('sketch'); onSketchClick() }
+          if (e.object.name === 'photo_target')       { e.stopPropagation(); clickHints.mark('photo'); onPhotoClick() }
           // click handlers live on a parent for multi-part objects (the rocket's fins/nose are child meshes)
           for (let o: THREE.Object3D | null = e.object; o; o = o.parent) {
             if (o.userData.onClick) { e.stopPropagation(); o.userData.onClick(); break }
@@ -129,6 +131,7 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
       <Animals scene={scene} />
       <Rocket scene={scene} />
       <PodReveal scene={scene} open={podOpen} ready={meshesReady} />
+      <ClickMarkers scene={scene} ready={meshesReady} />
       {smokePos && <Smoke position={smokePos} />}
     </group>
   )

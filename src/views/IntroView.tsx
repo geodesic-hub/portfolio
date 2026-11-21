@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import './IntroView.css'
 
-/** Noty the turtle greets visitors with a short chat, then offers quick replies that act. */
+/** Kurma the turtle greets visitors with a short chat, then offers quick replies that act. */
 
 export type IntroAction = 'about' | 'pod' | 'contact' | 'explore'
 
 const LINES = [
   'Oh! A visitor! Welcome aboard.',
-  "I'm Noty, keeper of this little floating island.",
+  "I'm Kurma, keeper of this little floating island.",
   "That pod is Harsh's home. 1,200 m above Earth, best view in the neighbourhood.",
   'Anything that pulses up here is clickable. Go on, poke around.',
   'So, what brings you up here?',
@@ -54,8 +54,8 @@ export default function IntroView({ onAction }: { onAction: (a: IntroAction) => 
   return (
     <div className="kurma">
       <div className={`kurma-avatar ${talking ? 'kurma-avatar--talk' : ''}`}>
-        <img src="/textures/turtle.png" alt="Noty the turtle" />
-        <div className="kurma-name">NOTY</div>
+        <img src="/textures/turtle.png" alt="Kurma the turtle" />
+        <div className="kurma-name">KURMA</div>
       </div>
 
       <div className="kurma-chat">
@@ -64,7 +64,7 @@ export default function IntroView({ onAction }: { onAction: (a: IntroAction) => 
         ))}
 
         {typing && (
-          <div className="kurma-bubble kurma-bubble--typing" aria-label="Noty is typing">
+          <div className="kurma-bubble kurma-bubble--typing" aria-label="Kurma is typing">
             <span /><span /><span />
           </div>
         )}

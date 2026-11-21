@@ -50,9 +50,9 @@ export default function SketchView() {
 
   return (
     <>
-      <div style={{ fontFamily: '"Courier New", monospace', color: '#f2f5f7', textShadow: '0 0 6px rgba(127,230,255,0.5)' }}>
+      <div className="hud-view">
 
-        <div style={{ fontSize: 9, letterSpacing: 5, opacity: 0.5, marginBottom: 10 }}>
+        <div className="hud-label">
           SKETCH ARCHIVE - FILE {idx + 1} OF {SKETCHES.length}
         </div>
 
@@ -61,7 +61,7 @@ export default function SketchView() {
 
           <div
             onClick={() => setLightbox(true)}
-            style={{ flex: 1, display: 'flex', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(127,230,255,0.1)', minHeight: 140, cursor: 'zoom-in' }}
+            className="hud-frame" style={{ flex: 1, minHeight: 140 }}
           >
             <img
               key={SKETCHES[idx]}
@@ -76,7 +76,7 @@ export default function SketchView() {
 
         <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginTop: 8 }}>
           {SKETCHES.map((_, i) => (
-            <span key={i} onClick={() => setIdx(i)} style={{ cursor: 'pointer', fontSize: 8, opacity: i === idx ? 1 : 0.25, color: '#f2f5f7' }}>●</span>
+            <span key={i} onClick={() => setIdx(i)} style={{ cursor: 'pointer', fontSize: 10, opacity: i === idx ? 1 : 0.35, color: 'var(--hud-text)' }}>●</span>
           ))}
         </div>
 
@@ -125,7 +125,7 @@ export default function SketchView() {
             ▶
           </button>
 
-          <div style={{ position: 'absolute', bottom: 20, fontFamily: '"Courier New", monospace', fontSize: 10, letterSpacing: 4, color: '#f2f5f7', opacity: 0.4 }}>
+          <div style={{ position: 'absolute', bottom: 20, fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: 1.5, color: '#f5f7fb', opacity: 0.7 }}>
             {idx + 1} / {SKETCHES.length} - ESC TO CLOSE
           </div>
         </div>,

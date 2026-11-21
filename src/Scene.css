@@ -13,7 +13,7 @@
   align-items: flex-end;
   gap: 12px;
 }
-.scene-pod-btn { min-width: 168px; padding: 10px 16px; font-size: 12px; }
+.scene-pod-btn { min-width: 168px; padding: 10px 16px; font-size: 14px; background: var(--hud-panel); border-color: var(--hud-accent); border-radius: 10px; }
 
 @media (max-width: 540px) {
   .scene-controls {
@@ -67,13 +67,13 @@
   position: absolute;
   bottom: calc(100% + 4px);
   right: 0;
-  background: rgba(0, 8, 12, 0.9);
-  border: 1px solid var(--color-green-border);
+  background: var(--hud-panel);
+  border: 1px solid var(--hud-line);
+  border-radius: 10px;
   padding: 10px 14px;
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 2px;
-  color: var(--color-green-dim);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--hud-text);
   white-space: nowrap;
   flex-direction: column;
   gap: 6px;
@@ -82,7 +82,7 @@
 .scene-hint:hover .scene-hint-panel { display: flex; }
 
 .scene-hint-row { display: flex; gap: 20px; justify-content: space-between; }
-.scene-hint-row span:first-child { opacity: 0.5; }
+.scene-hint-row span:first-child { color: var(--hud-text-2); }
 
 
 @media (max-width: 900px) {

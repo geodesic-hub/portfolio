@@ -15,29 +15,29 @@ export default function FamilyView() {
 
   return (
     <>
-      <div style={{ fontFamily: '"Courier New", monospace', color: '#f2f5f7', textShadow: '0 0 6px rgba(127,230,255,0.4)', lineHeight: 1.8 }}>
-        <div style={{ fontSize: 9, letterSpacing: 5, opacity: 0.5, marginBottom: 14 }}>
+      <div className="hud-view">
+        <div className="hud-label">
           FAMILY INSPIRATIONS
         </div>
 
         <div
           onClick={() => setLightbox(true)}
           title="Click to enlarge"
-          style={{ display: 'flex', justifyContent: 'center', background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(127,230,255,0.1)', marginBottom: 14, padding: 6, cursor: 'zoom-in' }}
+          className="hud-frame" style={{ marginBottom: 14 }}
         >
           <img src={PHOTO} alt="My niece and nephew" style={{ maxHeight: 180, maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
         </div>
 
-        <p style={{ fontSize: 12, margin: '0 0 12px' }}>
+        <p style={{ margin: '0 0 12px' }}>
           My niece and nephew bring so much joy, energy, and curiosity into my life.
         </p>
-        <p style={{ fontSize: 12, margin: '0 0 12px', opacity: 0.85 }}>
+        <p className="hud-muted" style={{ margin: '0 0 12px' }}>
           My nephew is a spirited basketball player with a wonderful love for multicultural
           cooking and recipes. Whether he is on the court practicing his game or exploring
           flavors from around the world, he brings enthusiasm, creativity, and an open mind
           to everything he does.
         </p>
-        <p style={{ fontSize: 12, margin: 0, opacity: 0.85 }}>
+        <p className="hud-muted" style={{ margin: 0 }}>
           My niece is equally inspiring, with a natural talent for lawn tennis. Her focus,
           discipline, and bright competitive spirit make her a joy to watch and cheer for.
           Together, they remind me how beautiful it is to grow with curiosity, confidence,
@@ -69,7 +69,7 @@ export default function FamilyView() {
             style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', boxShadow: '0 0 40px rgba(127,230,255,0.15)' }}
           />
 
-          <div style={{ position: 'absolute', bottom: 20, fontFamily: '"Courier New", monospace', fontSize: 10, letterSpacing: 4, color: '#f2f5f7', opacity: 0.4 }}>
+          <div style={{ position: 'absolute', bottom: 20, fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: 1.5, color: '#f5f7fb', opacity: 0.7 }}>
             ESC TO CLOSE
           </div>
         </div>,
