@@ -160,6 +160,7 @@ const ThreeView = memo(function ThreeView({
       <FrameCapper fps={60} />
       <CameraControls
         ref={controlsRef}
+        makeDefault
         minPolarAngle={Math.PI * 0.15}
         maxPolarAngle={Math.PI * 0.52}
         minAzimuthAngle={-Infinity}

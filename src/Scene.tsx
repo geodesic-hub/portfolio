@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { rocketFlight } from './rocketFlight'
 import LoadingScreen from './LoadingScreen'
 import ComputerHUD from './ComputerHUD'
 import ContactView from './views/ContactView'
@@ -25,6 +26,7 @@ export default function Scene() {
 
   const [lightsOn, setLightsOn]           = useState(true)
   const [podOpen, setPodOpen]             = useState(false)
+  const rocketFlying = useSyncExternalStore(rocketFlight.subscribe, rocketFlight.get)
   const [isLoaded, setIsLoaded]           = useState(false)
   const [showLoading, setShowLoading]     = useState(true)
   const [, setCameraStarted]              = useState(false)
@@ -129,7 +131,13 @@ export default function Scene() {
 
       {hudVisible && (
         <div ref={controlsRef} className="scene-controls">
-          <button className="crt-btn-green scene-pod-btn" onClick={e => { squeeze(e.currentTarget); setPodOpen(o => !o) }}>
+          <button
+            className="crt-btn-green scene-pod-btn"
+            disabled={rocketFlying}
+            title={rocketFlying ? 'Wait for the rocket to land' : undefined}
+            style={rocketFlying ? { opacity: 0.4, cursor: 'not-allowed' } : undefined}
+            onClick={e => { if (rocketFlying) return; squeeze(e.currentTarget); setPodOpen(o => !o) }}
+          >
             {podOpen ? 'CLOSE POD' : 'OPEN POD'}
           </button>
           <LinkDock variant="side" active={hudView} onSelect={selectLink} />

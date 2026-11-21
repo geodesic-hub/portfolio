@@ -2,6 +2,50 @@ import { useEffect, useRef, useState } from 'react'
 
 const WIND_VOL   = 0.55
 const NATURE_VOL = 0.45
+const ROCKET_VOL = 0.5
+const NATURE_DUCK = 0.15 // nature level while the rocket flies
+
+// shared with the rocket (it lives inside the 3D canvas, outside this hook)
+const shared: { ctx: AudioContext | null; master: GainNode | null; natureGain: GainNode | null; natureOn: boolean } =
+  { ctx: null, master: null, natureGain: null, natureOn: false }
+let rocketBuf: Promise<AudioBuffer> | null = null
+let rocket: { src: AudioBufferSourceNode; gain: GainNode } | null = null
+
+const ramp = (p: AudioParam, to: number, seconds: number) => {
+  const now = shared.ctx!.currentTime
+  p.cancelScheduledValues(now)
+  p.setValueAtTime(p.value, now)
+  p.linearRampToValueAtTime(to, now + seconds)
+}
+
+/** Engine loop for the rocket flight: spools up on ignition and ducks the nature track. */
+export async function rocketSoundStart() {
+  const ctx = shared.ctx
+  if (!ctx || !shared.master || rocket) return
+  // seamless 5.5 s loop cut from the steady part of the engine recording (wav, so it loops without a gap)
+  rocketBuf ??= fetch('/music/rocket-loop.wav').then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b))
+  const buf = await rocketBuf.catch(() => null)
+  if (!buf || rocket) return
+  const gain = ctx.createGain(); gain.gain.value = 0
+  const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true
+  src.playbackRate.value = 0.8
+  src.connect(gain).connect(shared.master)
+  src.start()
+  rocket = { src, gain }
+  ramp(gain.gain, ROCKET_VOL, 1.2)
+  ramp(src.playbackRate, 1, 1.8) // engine spooling up
+  if (shared.natureGain && shared.natureOn) ramp(shared.natureGain.gain, NATURE_DUCK, 1)
+}
+
+/** Engine shut-down on touchdown: the hum winds down and the nature track comes back. */
+export function rocketSoundStop() {
+  if (!shared.ctx || !rocket) return
+  const r = rocket; rocket = null
+  ramp(r.gain.gain, 0, 2)
+  ramp(r.src.playbackRate, 0.7, 2)
+  r.src.stop(shared.ctx.currentTime + 2.1)
+  if (shared.natureGain && shared.natureOn) ramp(shared.natureGain.gain, NATURE_VOL, 2.5)
+}
 
 /**
  * Wind while the camera flies in, then nature ambience once it has landed.
@@ -67,6 +111,8 @@ export function useAudio() {
       ctx.createMediaElementSource(t.el).connect(t.gain).connect(masterRef.current)
     }
     void ctx.resume()
+    shared.ctx = ctx; shared.master = masterRef.current; shared.natureGain = natureRef.current.gain
+    rocketBuf ??= fetch('/music/rocket-loop.wav').then(r => r.arrayBuffer()).then(b => ctx.decodeAudioData(b)) // warm up
 
     const wind = windRef.current
     wind.el.currentTime = 0
@@ -83,6 +129,7 @@ export function useAudio() {
     const wind = windRef.current, nature = natureRef.current
     if (!ctxRef.current || !wind?.gain || !nature?.gain) return
     natureStarted.current = true
+    shared.natureOn = true
     fadeTo(wind.gain, 0, 3.5)
     setTimeout(() => wind.el.pause(), 3700)
 

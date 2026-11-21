@@ -160,63 +160,19 @@ function Satellite({ scene }: { scene: THREE.Object3D }) {
 // ---------------------------------------------------------------------------
 // Nest bird: breathes, looks around, pecks, flutters its wings, hops and turns
 // ---------------------------------------------------------------------------
-const _w = new THREE.Vector3()
-const _d = new THREE.Vector3()
 function NestBird({ scene }: { scene: THREE.Object3D }) {
   const rig = useMemo(() => {
     const body = scene.getObjectByName('bird_body_t3')
     if (!body) return null
     const part = (n: string) => scene.getObjectByName(n) ?? null
     const head = part('bird_head_t3'), wl = part('bird_wing_l_t3'), wr = part('bird_wing_r_t3')
-    // the trunk was rebuilt slimmer, so pull the nest + bird back against the bark (once)
-    if (!body.userData.nestShifted) {
-      // move the nest (and the bird on it) up into the fork where the trunk splits into branches
-      const off = new THREE.Vector3(-0.38, 1.79, -1.01)
-      body.position.add(off)
-      part('nest_target_t3')?.position.add(off)
-      body.userData.nestShifted = true
-    }
+    // nest + bird already sit in the trunk fork in the exported model
     return {
       body, head, wl, wr,
       bodyPos: body.position.clone(), bodyRot: body.rotation.clone(),
       headRot: head?.rotation.clone(), wlRot: wl?.rotation.clone(), wrRot: wr?.rotation.clone(),
     }
   }, [scene])
-
-  // soft warm halo so the bird reads from a distance
-  const halo = useMemo(() => {
-    if (!rig?.body.parent) return null
-    const c = document.createElement('canvas'); c.width = c.height = 128
-    const g = c.getContext('2d')!
-    const grd = g.createRadialGradient(64, 64, 0, 64, 64, 64)
-    grd.addColorStop(0, 'rgba(255,240,205,0.85)')
-    grd.addColorStop(0.3, 'rgba(255,228,180,0.4)')
-    grd.addColorStop(0.65, 'rgba(255,215,160,0.1)')
-    grd.addColorStop(1, 'rgba(255,210,150,0)')
-    g.fillStyle = grd; g.fillRect(0, 0, 128, 128)
-    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace
-    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.7, fog: false })
-    const sp = new THREE.Sprite(mat)
-    sp.name = 'bird_halo'
-    // centre the glow on the bird's visible body + head, not on the body's pivot (which sits low, in the nest)
-    rig.body.updateWorldMatrix(true, true)
-    const bb = new THREE.Box3().setFromObject(rig.body)
-    if (rig.head) bb.union(new THREE.Box3().setFromObject(rig.head))
-    const centre = rig.body.parent.worldToLocal(bb.getCenter(new THREE.Vector3()))
-    sp.userData.centreOffset = centre.sub(rig.bodyPos)
-    sp.position.copy(rig.bodyPos).add(sp.userData.centreOffset)
-    sp.scale.setScalar(2)
-    sp.renderOrder = 10
-    sp.frustumCulled = false
-    sp.raycast = () => null
-    return sp
-  }, [rig])
-  useEffect(() => {
-    if (!halo || !rig?.body.parent) return
-    const parent = rig.body.parent
-    parent.add(halo)
-    return () => { parent.remove(halo); halo.material.map?.dispose(); halo.material.dispose() }
-  }, [halo, rig])
 
   const st = useRef({
     yaw: 0, yawT: 0, tilt: 0, tiltT: 0, nextLook: 1,
@@ -260,25 +216,6 @@ function NestBird({ scene }: { scene: THREE.Object3D }) {
 
     // body: breathing + hop + turn
     const breathe = Math.sin(t * 3.2) * 0.025
-    if (halo) {
-      const pulse = 0.5 + 0.5 * Math.sin(t * 1.6)
-      halo.material.opacity = 0.45 + 0.2 * pulse
-      halo.scale.setScalar(1.0 + 0.2 * pulse)
-      // brighten the bird itself so it reads against the bark (materials are assigned after the textures load)
-      for (const o of [rig.body, rig.head, rig.wl, rig.wr]) {
-        const m = (o as THREE.Mesh | null)?.material as THREE.MeshBasicMaterial | undefined
-        if (m && !m.userData.birdLit) { m.color.setScalar(2.4); m.userData.birdLit = true }
-      }
-      // pull the glow toward the camera so the fork's bark doesn't clip it, but the pod / canopy still hide it from behind
-      const parent = halo.parent
-      if (parent) {
-        _w.copy(rig.bodyPos).add(halo.userData.centreOffset); _w.y += hop
-        parent.localToWorld(_w)
-        _d.copy(s.camera.position).sub(_w).normalize()
-        _w.addScaledVector(_d, 0.6)
-        halo.position.copy(parent.worldToLocal(_w))
-      }
-    }
     rig.body.position.set(rig.bodyPos.x, rig.bodyPos.y + hop, rig.bodyPos.z)
     rig.body.rotation.set(rig.bodyRot.x, rig.bodyRot.y + b.turn, rig.bodyRot.z)
     rig.body.scale.set(1, 1 + breathe, 1 + breathe * 0.6)

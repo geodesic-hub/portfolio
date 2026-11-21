@@ -3,12 +3,12 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 // The pod's front wall, right wall, stairs and dome lift up and away to reveal the room, and come back.
-// Names match the exported GLB (the _t7 suffix gives them the t7 bake texture).
+// Names match the exported GLB. The island bakes were made with these four pieces hidden, so no shadow stays behind.
 const PIECES: Record<string, { lift: number; drift: [number, number, number]; tilt: [number, number, number]; delay: number }> = {
-  hut_wall_front_t7: { lift: 10, drift: [0, 0, 5], tilt: [0.35, 0, 0], delay: 0.0 },
-  hut_wall_right_t7: { lift: 10, drift: [5, 0, 0], tilt: [0, 0, -0.35], delay: 0.12 },
-  hut_roof_t7:       { lift: 15, drift: [0, 0, 0], tilt: [0, 0.6, 0], delay: 0.24 },
-  pod_ramp_t7:       { lift: 7,  drift: [0, 0, 6], tilt: [0.5, 0, 0], delay: 0.06 },
+  hut_wall_front_t5: { lift: 10, drift: [0, 0, 5], tilt: [0.35, 0, 0], delay: 0.0 },
+  hut_wall_right_t5: { lift: 10, drift: [5, 0, 0], tilt: [0, 0, -0.35], delay: 0.12 },
+  hut_roof_t5:       { lift: 15, drift: [0, 0, 0], tilt: [0, 0.6, 0], delay: 0.24 },
+  pod_ramp_t5:       { lift: 7,  drift: [0, 0, 6], tilt: [0.5, 0, 0], delay: 0.06 },
 }
 const LAST_DELAY = 0.24
 

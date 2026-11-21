@@ -8,7 +8,11 @@ import gsap from 'gsap'
 import { useRoomTextures } from './hooks/useRoomTextures'
 import Animals from './Animals'
 import PodReveal from './PodReveal'
-import PorchSlab from './PorchSlab'
+import Rocket from './Rocket'
+
+// touch screens have no hover: the pointer stays where the last tap landed, which would leave
+// tapped objects stuck enlarged. They rely on the periodic pop instead.
+const CAN_HOVER = typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches
 
 interface RoomProps {
   lightsOn: boolean
@@ -19,7 +23,7 @@ interface RoomProps {
 }
 
 function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: RoomProps) {
-  const { scene } = useGLTF('/model/room.glb')
+  const { scene } = useGLTF('/model/room.glb', '/draco/') // self-hosted Draco decoder (public/draco), no CDN
   const { invalidate } = useThree()
 
   const {
@@ -33,7 +37,6 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
     linkedinRef,
     photoRef,
     frameRef,
-    lightMix,
   } = useRoomTextures({ scene, lightsOn, onLoaded })
 
   const sketchHovered   = useRef(false)
@@ -67,10 +70,10 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
     const pulse = () => {
       const sketchDelay = r()
       const photoDelay  = r()
-      pop(sketchRef.current,     1.3,  sketchDelay)
-      pop(sketchBaseRef.current, 1.3,  sketchDelay)
-      pop(photoRef.current,      1.15, photoDelay)
-      pop(frameRef.current,      1.15, photoDelay)
+      pop(sketchRef.current,     1.45, sketchDelay)
+      pop(sketchBaseRef.current, 1.45, sketchDelay)
+      pop(photoRef.current,      1.3,  photoDelay)
+      pop(frameRef.current,      1.3,  photoDelay)
     }
 
     pulse()
@@ -88,22 +91,22 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
     }
 
     if (sketchRef.current) {
-      const hit = state.raycaster.intersectObject(sketchRef.current, false).length > 0
+      const hit = CAN_HOVER && state.raycaster.intersectObject(sketchRef.current, false).length > 0
       if (hit !== sketchHovered.current) {
         sketchHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
-        const s = hit ? 1.15 : 1; const ease = hit ? 'power2.out' : 'power2.in'
+        const s = hit ? 1.25 : 1; const ease = hit ? 'power2.out' : 'power2.in'
         hoverScale(sketchRef.current, s, ease)
         if (sketchBaseRef.current) hoverScale(sketchBaseRef.current, s, ease)
       }
     }
 
     if (photoRef.current) {
-      const hit = state.raycaster.intersectObject(photoRef.current, false).length > 0
+      const hit = CAN_HOVER && state.raycaster.intersectObject(photoRef.current, false).length > 0
       if (hit !== photoHovered.current) {
         photoHovered.current = hit
         document.body.style.cursor = hit ? 'pointer' : 'auto'
-        const s = hit ? 1.15 : 1; const ease = hit ? 'power2.out' : 'power2.in'
+        const s = hit ? 1.25 : 1; const ease = hit ? 'power2.out' : 'power2.in'
         hoverScale(photoRef.current, s, ease)
         if (frameRef.current) hoverScale(frameRef.current, s, ease)
       }
@@ -117,15 +120,19 @@ function Room({ lightsOn, podOpen, onLoaded, onSketchClick, onPhotoClick }: Room
         onClick={(e: ThreeEvent<MouseEvent>) => {
           if (e.object.name === 'sketch_target')      { e.stopPropagation(); onSketchClick() }
           if (e.object.name === 'photo_target')       { e.stopPropagation(); onPhotoClick() }
+          // click handlers live on a parent for multi-part objects (the rocket's fins/nose are child meshes)
+          for (let o: THREE.Object3D | null = e.object; o; o = o.parent) {
+            if (o.userData.onClick) { e.stopPropagation(); o.userData.onClick(); break }
+          }
         }}
       />
       <Animals scene={scene} />
-      <PorchSlab lightMix={lightMix} />
+      <Rocket scene={scene} />
       <PodReveal scene={scene} open={podOpen} ready={meshesReady} />
       {smokePos && <Smoke position={smokePos} />}
     </group>
   )
 }
-useGLTF.preload('/model/room.glb')
+useGLTF.preload('/model/room.glb', '/draco/')
 
 export default Room

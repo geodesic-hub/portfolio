@@ -3,16 +3,22 @@ import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import gsap from 'gsap'
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
-import { addWallFootprintPatch } from './wallFootprintPatch'
-import { fixCanopyClump } from './canopyClumpFix'
+import { bakeMap } from './bakeMap'
 
-type TextureKey = 't1' | 't2' | 't3' | 't4' | 't6' | 't7' | 't8'
+// Bake atlases: one lights-off (day) and one lights-on (night) texture per group.
+// bakeMap.ts is generated from the Blender export's bake-map.json and maps every baked object to its atlas.
+type TextureKey = keyof typeof bakeMap.atlases
 type TextureSet = Record<TextureKey, THREE.Texture>
+const KEYS = Object.keys(bakeMap.atlases) as TextureKey[]
+// GLTFLoader sanitizes node names ("rocket_target_t3.001" -> "rocket_target_t3001"), so match on that form
+const OBJECT_ATLAS = new Map<string, TextureKey>(
+  Object.entries(bakeMap.objects).map(([name, key]) => [THREE.PropertyBinding.sanitizeNodeName(name), key as TextureKey]),
+)
 
 const LIGHT_FADE_SECONDS = 0.6
 
 // Phones / tablets get 2048px KTX2 (Basis) bakes that stay compressed on the GPU
-// (~30 MB instead of ~800 MB of raw pixels); desktop keeps the 4096px WebP set.
+// instead of hundreds of MB of raw pixels; desktop keeps the 4096px WebP set.
 const IS_MOBILE = typeof window !== 'undefined' &&
   (window.matchMedia('(pointer: coarse)').matches || Math.min(window.screen.width, window.screen.height) < 820)
 
@@ -68,7 +74,7 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
 
   useEffect(() => {
     const loader = new THREE.TextureLoader()
-    const keys: TextureKey[] = ['t1', 't2', 't3', 't4', 't6', 't7', 't8']
+    const keys = KEYS
 
     const configure = (t: THREE.Texture) => {
       t.flipY = false
@@ -125,9 +131,16 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
         if (!(child instanceof THREE.Mesh)) return
 
         if (child.name === 'inc_target_t3' && groupRef.current) {
-          const worldPos = child.getWorldPosition(new THREE.Vector3())
-          groupRef.current.worldToLocal(worldPos)
-          setSmokePos([worldPos.x, worldPos.y + .68, worldPos.z + (-.09)])
+          // smoke rises from the tip of the incense stick: the highest vertex of the holder mesh
+          child.updateWorldMatrix(true, false)
+          const pos = child.geometry.attributes.position as THREE.BufferAttribute
+          const v = new THREE.Vector3(), tip = new THREE.Vector3(0, -Infinity, 0)
+          for (let i = 0; i < pos.count; i++) {
+            v.fromBufferAttribute(pos, i).applyMatrix4(child.matrixWorld)
+            if (v.y > tip.y) tip.copy(v)
+          }
+          groupRef.current.worldToLocal(tip)
+          setSmokePos([tip.x, tip.y + 0.02, tip.z])
         }
 
         if (child.name === 'dish_target_t1')       dishRef.current      = child
@@ -184,17 +197,15 @@ export function useRoomTextures({ scene, lightsOn, onLoaded }: UseRoomTexturesOp
           return
         }
 
-        const key = keys.find(k => child.name === k || child.name.endsWith(`_${k}`))
+        // multi-primitive nodes load as a Group of meshes: fall back to the parent's name
+        const key = OBJECT_ATLAS.get(child.name) ?? (child.parent ? OBJECT_ATLAS.get(child.parent.name) : undefined)
+        // only baked GLB meshes get the bake material. Meshes added at runtime (rocket shadow and
+        // exhaust, etc.) keep their own materials; overwriting them painted the rocket's shadow white.
         if (key) {
           meshTextureKeysRef.current.set(child, key)
           child.material = makeBlendedBakeMaterial(off[key], on[key], lightMixRef.current)
-        } else {
-          child.material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.FrontSide })
         }
       })
-
-      addWallFootprintPatch(scene)
-      fixCanopyClump(scene)
 
       const CYCLE_INTERVAL = 8000
       const FADE_DURATION  = 1.0
