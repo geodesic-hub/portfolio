@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import './ComputerHUD.css'
-import { Minus, Plus, RotateCcw, LightbulbOff, Lightbulb, Volume2, VolumeX } from 'lucide-react'
+import { Minus, Plus, SwitchCamera, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
 
 interface HUDProps {
   visible: boolean
@@ -67,16 +67,17 @@ export default function ComputerHUD({ visible, content, lightsOn, podOpen, muted
             <div className="crt-titlebar-actions" onClick={e => e.stopPropagation()}>
               {onReset && (
                 <button className="crt-titlebar-btn" onClick={e => { squeeze(e.currentTarget); onReset() }} title="Reset camera">
-                  <RotateCcw size={18} />
+                  <SwitchCamera size={18} />
                 </button>
               )}
               {onToggleLights && (
                 <button
                   className={`crt-titlebar-btn ${lightsOn ? 'crt-titlebar-btn--lit' : ''}`}
                   onClick={e => { squeeze(e.currentTarget); onToggleLights() }}
-                  title={lightsOn ? 'Lights off' : 'Lights on'}
+                  title={lightsOn ? 'Switch to day' : 'Switch to night'}
                 >
-                  {lightsOn ? <LightbulbOff size={18} /> : <Lightbulb size={18} />}
+                  {/* shows the mode you switch to: night (lights on) offers the sun, day offers the moon */}
+                  {lightsOn ? <Sun size={18} /> : <Moon size={18} />}
                 </button>
               )}
               {onToggleMute && (
